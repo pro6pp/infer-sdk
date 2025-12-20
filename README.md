@@ -46,6 +46,37 @@ We use Prettier for consistent code style across all packages.
 npx prettier --write .
 ```
 
+### Release Process
+
+We use [Changesets](https://github.com/changesets/changesets) to manage versions and changelogs.
+
+1.  Create a changeset:
+    ```bash
+    npm run changeset
+    ```
+
+    - Select the packages you modified.
+    - Choose the bump type (Major/Minor/Patch).
+    - Write a summary of the changes.
+3.  Commit the changeset file:
+    ```bash
+    git add .
+    git commit -m "chore: add changeset"
+    ```
+4.  Release:
+
+    ```bash
+    # Bump versions and update changelogs
+    npm run changeset version
+
+    # commit version bumps
+    git add .
+    git commit -m "chore: release version"
+
+    # push and publish to NPM
+    git push origin main
+    ```
+
 ## License
 
 MIT © [Pro6PP](https://github.com/pro6pp/infer-sdk/blob/main/LICENSE)
