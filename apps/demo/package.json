@@ -1,7 +1,7 @@
 {
   "name": "@pro6pp/demo",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.1-beta.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -10,8 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@pro6pp/infer-core": "*",
-    "@pro6pp/infer-react": "*",
+    "@pro6pp/infer-core": "0.0.2-beta.0",
+    "@pro6pp/infer-react": "0.0.2-beta.0",
     "react": "^19.2.0",
     "react-dom": "^19.2.0"
   },
