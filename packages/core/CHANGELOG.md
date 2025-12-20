@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.2
+
+### Patch Changes
+
+- Update metadata, keywords and build config.
+
 ## 0.0.2-beta.1
 
 ### Patch Changes

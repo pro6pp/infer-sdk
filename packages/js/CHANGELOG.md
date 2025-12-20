@@ -1,5 +1,13 @@
 # @pro6pp/infer-js
 
+## 0.0.2-beta.2
+
+### Patch Changes
+
+- Update metadata, keywords and build config.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.2
+
 ## 0.0.2-beta.1
 
 ### Patch Changes
