@@ -9,6 +9,7 @@ cache:
 stages:
   - style
   - build
+  - release
 
 before_script:
   - npm ci --cache .npm --prefer-offline
@@ -27,3 +28,13 @@ build:
   stage: build
   script:
     - npm run build --workspaces --if-present
+
+publish_npm:
+  stage: release
+  script:
+    - echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > .npmrc
+    - npm ci
+    - npm run build --workspaces
+    - npm run release
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"

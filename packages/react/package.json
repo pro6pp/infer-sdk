@@ -1,6 +1,6 @@
 {
   "name": "@pro6pp/infer-react",
-  "version": "0.0.1",
+  "version": "0.0.2-beta.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -24,7 +24,7 @@
     "react": ">=16"
   },
   "dependencies": {
-    "@pro6pp/infer-core": "*"
+    "@pro6pp/infer-core": "0.0.2-beta.0"
   },
   "devDependencies": {
     "@types/react": "^19.2.7"
