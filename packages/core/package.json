@@ -2,6 +2,25 @@
   "name": "@pro6pp/infer-core",
   "description": "Core logic and client for the Pro6PP Infer API.",
   "homepage": "https://github.com/pro6pp/infer-sdk/tree/main/packages/core",
+  "keywords": [
+    "pro6pp",
+    "infer-api",
+    "sdk",
+    "core",
+    "headless",
+    "address",
+    "autocomplete",
+    "validation",
+    "postal-code",
+    "netherlands",
+    "germany",
+    "api-client",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/pro6pp/infer-sdk/issues"
+  },
+  "sideEffects": false,
   "version": "0.0.2-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
@@ -12,7 +31,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "require": "./dist/index.js",
+      "script": "./dist/index.global.js"
     }
   },
   "files": [

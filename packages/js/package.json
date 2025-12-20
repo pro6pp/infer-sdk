@@ -2,12 +2,36 @@
   "name": "@pro6pp/infer-js",
   "description": "Framework-agnostic JavaScript SDK for the Pro6PP Infer API.",
   "homepage": "https://github.com/pro6pp/infer-sdk/tree/main/packages/js",
+  "keywords": [
+    "javascript",
+    "address",
+    "autocomplete",
+    "vanilla-js",
+    "pro6pp",
+    "netherlands",
+    "germany",
+    "sdk"
+  ],
+  "bugs": {
+    "url": "https://github.com/pro6pp/infer-sdk/issues"
+  },
+  "sideEffects": [
+    "*.css"
+  ],
   "version": "0.0.2-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.global.js",
   "jsdelivr": "./dist/index.global.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js",
+      "script": "./dist/index.global.js"
+    }
+  },
   "files": [
     "dist",
     "README.md"

@@ -2,6 +2,23 @@
   "name": "@pro6pp/infer-react",
   "description": "Headless React one-field input for the Pro6PP Infer API.",
   "homepage": "https://github.com/pro6pp/infer-sdk/tree/main/packages/react",
+  "keywords": [
+    "react",
+    "hook",
+    "address",
+    "autocomplete",
+    "pro6pp",
+    "netherlands",
+    "germany",
+    "postal-code",
+    "validation",
+    "infer-api",
+    "sdk"
+  ],
+  "bugs": {
+    "url": "https://github.com/pro6pp/infer-sdk/issues"
+  },
+  "sideEffects": false,
   "version": "0.0.2-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
