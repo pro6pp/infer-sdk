@@ -1,7 +1,7 @@
 {
   "name": "@pro6pp/infer-js",
   "description": "Framework-agnostic JavaScript SDK for the Pro6PP Infer API.",
-  "version": "0.0.2-beta.0",
+  "version": "0.0.2-beta.1",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -17,7 +17,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@pro6pp/infer-core": "0.0.2-beta.0"
+    "@pro6pp/infer-core": "0.0.2-beta.1"
   },
   "devDependencies": {
     "tsup": "^8.0.0",

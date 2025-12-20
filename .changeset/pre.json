@@ -7,6 +7,8 @@
     "@pro6pp/infer-react": "0.0.1"
   },
   "changesets": [
+    "funky-canyons-help",
+    "nine-towns-drop",
     "real-weeks-travel"
   ]
 }
