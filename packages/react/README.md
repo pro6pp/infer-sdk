@@ -1,4 +1,4 @@
-# @pro6pp/infer-react
+# Pro6PP Infer React SDK
 
 React Hook for the [Pro6PP Infer API](https://www.pro6pp.com/developer/infer/nl/parameters).
 A headless library to build custom address autocomplete components in React.

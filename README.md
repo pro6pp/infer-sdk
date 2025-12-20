@@ -22,26 +22,15 @@ This repository is a monorepo managed by NPM Workspaces.
 Clone the repo and install dependencies for all packages at once:
 
 ```bash
-git clone https://gitlab.d-centralize.nl/dc/pro6pp/pro6pp-infer-sdk.git
-cd pro6pp-infer-sdk
 npm install
 ```
 
 ### Building
 
-Build all packages in the correct order:
+Build all packages:
 
 ```bash
 npm run build
-```
-
-### Running the demo
-
-A React playground is included in `apps/demo` to test changes:
-
-```bash
-# start the local dev server
-npm run dev --workspace=apps/demo
 ```
 
 ### Formatting
@@ -51,3 +40,7 @@ We use Prettier for consistent code style across all packages.
 ```bash
 npx prettier --write .
 ```
+
+## License
+
+MIT © [Pro6PP](https://github.com/pro6pp/infer-sdk/blob/main/LICENSE)
