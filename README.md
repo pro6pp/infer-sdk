@@ -12,11 +12,11 @@ For more details, visit the [API Documentation](https://www.pro6pp.com/developer
 
 Choose the package that fits your environment:
 
-| Package                                     |                                 | Version                     |
-| :------------------------------------------ | :------------------------------ | :-------------------------- |
-| **[@pro6pp/infer-js](./packages/js)**       | Drop-in script for vanilla JS.  | `<script src="...">`        |
-| **[@pro6pp/infer-react](./packages/react)** | Hook for React applications.    | `npm i @pro6pp/infer-react` |
-| **[@pro6pp/infer-core](./packages/core)**   | Shared logic and state machine. | `npm i @pro6pp/infer-core`  |
+| Package                                     | Description                     | Installation                                                               |
+| :------------------------------------------ | :------------------------------ | :------------------------------------------------------------------------- |
+| **[@pro6pp/infer-js](./packages/js)**       | Drop-in script for vanilla JS.  | `npm i @pro6pp/infer-js` or [CDN Link](https://unpkg.com/@pro6pp/infer-js) |
+| **[@pro6pp/infer-react](./packages/react)** | Hook for React applications.    | `npm i @pro6pp/infer-react`                                                |
+| **[@pro6pp/infer-core](./packages/core)**   | Shared logic and state machine. | `npm i @pro6pp/infer-core`                                                 |
 
 ## Development
 
@@ -51,6 +51,7 @@ npx prettier --write .
 We use [Changesets](https://github.com/changesets/changesets) to manage versions and changelogs.
 
 1.  Create a changeset:
+
     ```bash
     npm run changeset
     ```
@@ -58,12 +59,13 @@ We use [Changesets](https://github.com/changesets/changesets) to manage versions
     - Select the packages you modified.
     - Choose the bump type (Major/Minor/Patch).
     - Write a summary of the changes.
-3.  Commit the changeset file:
+
+2.  Commit the changeset file:
     ```bash
     git add .
     git commit -m "chore: add changeset"
     ```
-4.  Release:
+3.  Release:
 
     ```bash
     # Bump versions and update changelogs
