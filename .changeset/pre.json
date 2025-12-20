@@ -2,7 +2,6 @@
   "mode": "pre",
   "tag": "beta",
   "initialVersions": {
-    "@pro6pp/demo": "0.0.0",
     "@pro6pp/infer-core": "0.0.1",
     "@pro6pp/infer-js": "0.0.1",
     "@pro6pp/infer-react": "0.0.1"

@@ -1,4 +1,4 @@
-# @pro6pp/infer-js
+# Pro6PP Infer JS SDK
 
 The official Vanilla JS SDK for the [Pro6PP Infer API](https://www.pro6pp.com/developer/infer/nl/parameters).
 A library that adds address autocompletion to any HTML input field.
@@ -7,22 +7,21 @@ A library that adds address autocompletion to any HTML input field.
 
 ### Option 1: CDN
 
-Simply add this script to your HTML file. It exposes a global `Pro6PP` variable.
+Add this script to your HTML file. It exposes a global `Pro6PP` variable.
 
 ```html
-// TODO: add CDN src
-<script src=""></script>
+<script src="https://unpkg.com/@pro6pp/infer-js"></script>
 ```
 
 ### Option 2: NPM
 
-If you are using Webpack, Vite, or Rollup but not a framework like React.
+If you are using a build tool like Webpack or Vite, but not a framework like React.
 
 ```bash
 npm install @pro6pp/infer-js
 ```
 
-> **Note:** If you are using React, use [`@pro6pp/infer-react`](../react) instead.
+> **Note:** If you are using React, use [`@pro6pp/infer-react`](https://www.npmjs.com/package/@pro6pp/infer-react) instead.
 
 ## Usage
 
@@ -41,9 +40,7 @@ npm install @pro6pp/infer-js
   </head>
   <body>
     <label>Address:</label>
-    // TODO: add CDN src
-    <script src=""></script>
-
+    <script src="https://unpkg.com/@pro6pp/infer-js"></script>
     <script>
       Pro6PP.attach('#my-address-input', {
         authKey: 'YOUR_AUTH_KEY',
@@ -59,10 +56,19 @@ npm install @pro6pp/infer-js
 
 ### Option 2: NPM
 
+1. Create an input field.
+2. Import the `attach` function.
+3. Initialize the autocomplete on the input.
+
+```html
+<label for="address-input">Address</label>
+<input id="address-input" name="address" type="text" placeholder="Type address..." />
+```
+
 ```javascript
 import { attach } from '@pro6pp/infer-js';
+import '@pro6pp/infer-js/dist/style.css';
 
-// attach to an input element directly
 const inputElement = document.querySelector('input[name="address"]');
 
 attach(inputElement, {
@@ -76,7 +82,16 @@ attach(inputElement, {
 
 ## Styling
 
-By default, the SDK injects a small CSS block to make the dropdown look decent. If you want to control the styling with your own CSS, set `style: 'none'` in the config.
+By default, the SDK injects a small CSS block to make the dropdown look decent. If you want to control the styling with your own CSS, set `style: 'none'` in the config:
+
+```js
+attach(inputElement, {
+  authKey: 'YOUR_AUTH_KEY',
+  country: 'NL',
+  style: 'none', // disables default styles
+  // ...
+});
+```
 
 HTML created by the SDK:
 
@@ -96,9 +111,18 @@ You can target these classes in your CSS:
 .pro6pp-results {
   background: white;
   border: 1px solid #ccc;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.pro6pp-item:hover {
+.pro6pp-item {
+  padding: 8px;
+  cursor: pointer;
+}
+
+.pro6pp-item:hover,
+.pro6pp-item.pro6pp-selected {
   background: #f0f0f0;
 }
 ```

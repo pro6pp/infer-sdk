@@ -1,9 +1,12 @@
 {
   "name": "@pro6pp/infer-core",
+  "description": "Core logic and client for the Pro6PP Infer API.",
   "version": "0.0.2-beta.0",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -16,8 +19,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts --format cjs,esm --dts",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "type-check": "tsc --noEmit"
   },
   "devDependencies": {
@@ -30,6 +33,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://gitlab.d-centralize.nl/dc/pro6pp/pro6pp-infer-sdk"
+    "url": "https://github.com/pro6pp/infer-sdk",
+    "directory": "packages/core"
   }
 }

@@ -1,10 +1,10 @@
-# @pro6pp/infer-core
+# Pro6PP Infer Core
 
 The headless logic engine behind the Pro6PP Infer SDKs.
 Use this package if you are building a custom integration for a framework, or if you need to run Infer in a non-standard environment.
 
-> **Note:** If you are using React, use [`@pro6pp/infer-react`](../react) instead.
-> If you are using plain HTML/JS, use [`@pro6pp/infer-js`](../js).
+> **Note:** If you are using React, use [`@pro6pp/infer-react`](https://www.npmjs.com/package/@pro6pp/infer-react) instead.
+> If you are using plain HTML/JS, use [`@pro6pp/infer-js`](https://www.npmjs.com/package/@pro6pp/infer-js).
 
 ## Installation
 
