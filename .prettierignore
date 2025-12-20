@@ -1,0 +1,13 @@
+# Dependencies
+node_modules
+
+# Build outputs
+dist
+coverage
+
+# Cache
+.turbo
+.cache
+
+# Configs
+package-lock.json

@@ -1,0 +1,29 @@
+image: node:20
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - .npm/
+    - node_modules/
+
+stages:
+  - style
+  - build
+
+before_script:
+  - npm ci --cache .npm --prefer-offline
+
+lint:
+  stage: style
+  script:
+    - npm run lint --workspaces --if-present
+
+types:
+  stage: style
+  script:
+    - npm run type-check --workspaces --if-present
+
+build:
+  stage: build
+  script:
+    - npm run build --workspaces --if-present

@@ -1,0 +1,33 @@
+{
+  "name": "@pro6pp/infer-js",
+  "version": "0.0.1",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "unpkg": "./dist/index.global.js",
+  "jsdelivr": "./dist/index.global.js",
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format iife,esm --dts --global-name Pro6PP --clean",
+    "dev": "tsup src/index.ts --format iife,esm --dts --watch --global-name Pro6PP",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@pro6pp/infer-core": "*"
+  },
+  "devDependencies": {
+    "tsup": "^8.0.0",
+    "typescript": "^5.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.d-centralize.nl/dc/pro6pp/pro6pp-infer-sdk"
+  }
+}
