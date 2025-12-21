@@ -19,6 +19,7 @@ export const INITIAL_STATE: InferState = {
   isValid: false,
   isError: false,
   isLoading: false,
+  selectedSuggestionIndex: -1,
 };
 
 export class InferCore {
@@ -53,6 +54,7 @@ export class InferCore {
       query: value,
       isValid: false,
       isLoading: !!value.trim(),
+      selectedSuggestionIndex: -1,
     });
 
     if (this.state.stage === 'final') {
@@ -62,8 +64,49 @@ export class InferCore {
     this.debouncedFetch(value);
   }
 
-  public handleKeyDown(event: KeyboardEvent | React.KeyboardEvent<HTMLInputElement>): void {
+  public handleKeyDown(
+    event: KeyboardEvent | { key: string; target: EventTarget | null; preventDefault: () => void },
+  ): void {
     const target = event.target as HTMLInputElement;
+    if (!target) return;
+
+    const totalItems =
+      this.state.cities.length + this.state.streets.length + this.state.suggestions.length;
+
+    if (totalItems > 0) {
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        let nextIndex = this.state.selectedSuggestionIndex + 1;
+        if (nextIndex >= totalItems) {
+          nextIndex = 0;
+        }
+        this.updateState({ selectedSuggestionIndex: nextIndex });
+        return;
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        let nextIndex = this.state.selectedSuggestionIndex - 1;
+        if (nextIndex < 0) {
+          nextIndex = totalItems - 1;
+        }
+        this.updateState({ selectedSuggestionIndex: nextIndex });
+        return;
+      }
+
+      if (event.key === 'Enter' && this.state.selectedSuggestionIndex >= 0) {
+        event.preventDefault();
+        const allItems = [...this.state.cities, ...this.state.streets, ...this.state.suggestions];
+
+        const item = allItems[this.state.selectedSuggestionIndex];
+        if (item) {
+          this.selectItem(item);
+          this.updateState({ selectedSuggestionIndex: -1 });
+        }
+        return;
+      }
+    }
+
     const val = target.value;
 
     if (event.key === ' ' && this.shouldAutoInsertComma(val)) {
@@ -123,7 +166,6 @@ export class InferCore {
 
     if (stage === 'direct' || stage === 'addition') {
       this.finishSelection(label);
-      this.handleInput(label);
       return;
     }
 

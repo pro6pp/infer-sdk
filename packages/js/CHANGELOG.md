@@ -1,5 +1,13 @@
 # @pro6pp/infer-js
 
+## 0.0.2-beta.3
+
+### Patch Changes
+
+- Added tests and better keyboard navigation.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.3
+
 ## 0.0.2-beta.2
 
 ### Patch Changes
