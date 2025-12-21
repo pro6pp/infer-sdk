@@ -20,8 +20,6 @@ Choose the package that fits your environment:
 
 ## Development
 
-This repository is a monorepo managed by NPM Workspaces.
-
 ### Installation
 
 Clone the repo and install dependencies for all packages at once:
@@ -40,15 +38,33 @@ npm run build
 
 ### Formatting
 
-We use Prettier for consistent code style across all packages.
+Prettier is used for consistent code style across all packages.
 
 ```bash
 npx prettier --write .
 ```
 
+### Running Tests
+
+[Vitest](https://vitest.dev/) is used for unit and integration tests.
+
+Run tests for a specific package:
+
+```bash
+npm test -w @pro6pp/infer-core
+npm test -w @pro6pp/infer-react
+npm test -w @pro6pp/infer-js
+```
+
+Run tests with coverage:
+
+```bash
+npm run test:coverage --workspaces
+```
+
 ### Release Process
 
-We use [Changesets](https://github.com/changesets/changesets) to manage versions and changelogs.
+[Changesets](https://github.com/changesets/changesets) is used to manage versions and changelogs.
 
 1.  Create a changeset:
 
@@ -68,15 +84,15 @@ We use [Changesets](https://github.com/changesets/changesets) to manage versions
 3.  Release:
 
     ```bash
-    # Bump versions and update changelogs
+    # bump versions and update changelogs
     npm run changeset version
 
     # commit version bumps
     git add .
     git commit -m "chore: release version"
 
-    # push and publish to NPM
-    git push origin main
+    # pushes to main will publish to NPM
+    git push
     ```
 
 ## License

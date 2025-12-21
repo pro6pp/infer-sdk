@@ -6,7 +6,6 @@ dist
 coverage
 
 # Cache
-.turbo
 .cache
 
 # Configs

@@ -1,5 +1,6 @@
 {
   "name": "@pro6pp/infer-react",
+  "type": "module",
   "description": "Headless React one-field input for the Pro6PP Infer API.",
   "homepage": "https://github.com/pro6pp/infer-sdk/tree/main/packages/react",
   "keywords": [
@@ -19,7 +20,7 @@
     "url": "https://github.com/pro6pp/infer-sdk/issues"
   },
   "sideEffects": false,
-  "version": "0.0.2-beta.2",
+  "version": "0.0.2-beta.3",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -37,15 +38,19 @@
   "scripts": {
     "build": "tsup",
     "dev": "tsup --watch",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
   "peerDependencies": {
     "react": ">=16"
   },
   "dependencies": {
-    "@pro6pp/infer-core": "0.0.2-beta.2"
+    "@pro6pp/infer-core": "0.0.2-beta.3"
   },
   "devDependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "@testing-library/react": "^16.3.1",
     "@types/react": "^19.2.7"
   },
   "publishConfig": {

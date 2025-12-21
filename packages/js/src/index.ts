@@ -155,9 +155,13 @@ export class InferJS {
 
     this.list.style.display = 'block';
 
-    items.forEach(({ item }) => {
+    items.forEach(({ item }, index) => {
       const li = document.createElement('li');
       li.className = 'pro6pp-item';
+
+      if (index === state.selectedSuggestionIndex) {
+        li.classList.add('pro6pp-item--active');
+      }
 
       li.setAttribute('role', 'option');
 

@@ -67,6 +67,12 @@ export interface InferState {
   isError: boolean;
   /** True if a network request is currently active. */
   isLoading: boolean;
+  /**
+   * The index of the currently highlighted suggestion in the dropdown list.
+   * - Values `>= 0` indicate an active item (for keyboard navigation).
+   * - Value `-1` indicates no item is currently highlighted.
+   */
+  selectedSuggestionIndex: number;
 }
 
 /**
