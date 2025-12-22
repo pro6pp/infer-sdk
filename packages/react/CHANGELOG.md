@@ -1,5 +1,11 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.4
+
+### Patch Changes
+
+- 69f6f9a: Export types in infer-react.
+
 ## 0.0.2-beta.3
 
 ### Patch Changes
