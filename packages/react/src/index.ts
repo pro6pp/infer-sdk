@@ -32,3 +32,13 @@ export function useInfer(config: InferConfig) {
     selectItem: (item: InferResult | string) => core.selectItem(item),
   };
 }
+
+export type {
+  CountryCode,
+  Stage,
+  AddressValue,
+  InferResult,
+  InferState,
+  InferConfig,
+  Fetcher,
+} from '@pro6pp/infer-core';
