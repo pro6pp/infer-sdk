@@ -1,5 +1,11 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.5
+
+### Patch Changes
+
+- Fix exported files created by tsup.
+
 ## 0.0.2-beta.4
 
 ### Patch Changes
