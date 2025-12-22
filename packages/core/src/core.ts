@@ -118,7 +118,10 @@ export class InferCore {
 
   public selectItem(item: InferResult | string): void {
     const label = typeof item === 'string' ? item : item.label;
-    const value = typeof item !== 'string' ? item.value : undefined;
+
+    const value =
+      typeof item !== 'string' ? item.value || (item as unknown as AddressValue) : undefined;
+
     const subtitle = typeof item !== 'string' ? item.subtitle : null;
 
     if (this.state.stage === 'final') {
