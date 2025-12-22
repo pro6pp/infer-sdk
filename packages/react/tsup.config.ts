@@ -6,4 +6,5 @@ export default defineConfig({
   dts: true,
   clean: true,
   external: ['react'],
+  noExternal: ['@pro6pp/infer-core'],
 });

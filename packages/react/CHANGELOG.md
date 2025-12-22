@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.6
+
+### Patch Changes
+
+- Fix tsup configuration.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.4
+
 ## 0.0.2-beta.5
 
 ### Patch Changes

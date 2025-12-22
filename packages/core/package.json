@@ -22,9 +22,9 @@
     "url": "https://github.com/pro6pp/infer-sdk/issues"
   },
   "sideEffects": false,
-  "version": "0.0.2-beta.3",
-  "main": "./dist/index.js",
-  "module": "./dist/index.mjs",
+  "version": "0.0.2-beta.4",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "unpkg": "./dist/index.global.js",
   "jsdelivr": "./dist/index.global.js",
@@ -32,8 +32,8 @@
     ".": {
       "types": "./dist/index.d.ts",
       "script": "./dist/index.global.js",
-      "import": "./dist/index.mjs",
-      "require": "./dist/index.js"
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
     }
   },
   "files": [

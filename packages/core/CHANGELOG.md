@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.4
+
+### Patch Changes
+
+- Fix tsup configuration.
+
 ## 0.0.2-beta.3
 
 ### Patch Changes
