@@ -38,21 +38,18 @@ export const DEFAULT_STYLES = `
     list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
-    overflow: hidden;
   }
   .pro6pp-item {
-    padding: 12px 12px 9px 12px;
+    padding: 10px 16px;
     cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
     color: #000000;
     font-size: 14px;
-    line-height: 1;
+    line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
-    border-radius: 0 !important;
-    margin: 0 !important;
   }
   .pro6pp-item:hover, .pro6pp-item--active {
     background-color: #f5f5f5;

@@ -88,7 +88,9 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
   ...config
 }) => {
   const { state, selectItem, inputProps: coreInputProps } = useInfer(config);
+  const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (disableDefaultStyles) return;
@@ -101,6 +103,17 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
     }
   }, [disableDefaultStyles]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const items = useMemo(() => {
     return [
       ...state.cities.map((c) => ({ ...c, type: 'city' as const })),
@@ -111,20 +124,20 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
 
   const handleSelect = (item: InferResult) => {
     selectItem(item);
+    setIsOpen(false);
     if (!state.isValid && inputRef.current) {
       inputRef.current.focus();
     }
   };
 
   const hasResults = items.length > 0;
-
   const showNoResults =
     !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
 
-  const showDropdown = hasResults || showNoResults;
+  const showDropdown = isOpen && (hasResults || showNoResults);
 
   return (
-    <div className={`pro6pp-wrapper ${className || ''}`} style={style}>
+    <div ref={wrapperRef} className={`pro6pp-wrapper ${className || ''}`} style={style}>
       <div style={{ position: 'relative' }}>
         <input
           ref={inputRef}
@@ -134,6 +147,10 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
           autoComplete="off"
           {...inputProps}
           {...coreInputProps}
+          onFocus={(e) => {
+            setIsOpen(true);
+            inputProps?.onFocus?.(e);
+          }}
         />
         {state.isLoading && <div className="pro6pp-loader" />}
       </div>
