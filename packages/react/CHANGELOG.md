@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.8
+
+### Patch Changes
+
+- Reduce default debouce duration and make it configurable. Also improve jsdocs of types and functions for better dev experience.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.6
+
 ## 0.0.2-beta.7
 
 ### Patch Changes

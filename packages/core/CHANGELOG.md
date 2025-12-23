@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.6
+
+### Patch Changes
+
+- Reduce default debouce duration and make it configurable. Also improve jsdocs of types and functions for better dev experience.
+
 ## 0.0.2-beta.5
 
 ### Patch Changes
