@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.5
+
+### Patch Changes
+
+- Provide a fully-functional dropdown by default for infer-js and infer-react.
+
 ## 0.0.2-beta.4
 
 ### Patch Changes

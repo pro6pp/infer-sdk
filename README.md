@@ -76,18 +76,13 @@ npm run test:coverage --workspaces
     - Choose the bump type (Major/Minor/Patch).
     - Write a summary of the changes.
 
-2.  Commit the changeset file:
-    ```bash
-    git add .
-    git commit -m "chore: add changeset"
-    ```
-3.  Release:
+2.  Release:
 
     ```bash
     # bump versions and update changelogs
     npm run changeset version
 
-    # commit version bumps
+    # commit version bumps and changeset
     git add .
     git commit -m "chore: release version"
 
