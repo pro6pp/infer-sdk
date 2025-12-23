@@ -22,17 +22,28 @@ const core = new InferCore({
   authKey: 'YOUR_AUTH_KEY',
   country: 'NL',
   onStateChange: (state) => {
-    console.log('Current Suggestions:', state.suggestions);
-    console.log('Is Loading:', state.isLoading);
+    // suggestions, isLoading, isValid, selectedSuggestionIndex, etc.
+    console.log('Current State:', state);
   },
   onSelect: (result) => {
     console.log('User selected:', result);
   },
 });
 
-// feed it input events, e.g. via an <input>
-core.handleInput('Amsterdam');
+const input = document.querySelector('#my-input');
 
-// handle selections when user clicks a suggestion in your dropdown
-core.selectItem(suggestionObject);
+// pass input events to the core
+input.addEventListener('input', (e) => {
+  core.handleInput(e.target.value);
+});
+
+// pass keyboard events
+input.addEventListener('keydown', (e) => {
+  core.handleKeyDown(e);
+});
+
+// handle clicks
+function onSuggestionClick(item) {
+  core.selectItem(item);
+}
 ```

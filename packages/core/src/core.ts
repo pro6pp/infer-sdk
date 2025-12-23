@@ -22,6 +22,10 @@ export const INITIAL_STATE: InferState = {
   selectedSuggestionIndex: -1,
 };
 
+type DebouncedFunction<T extends (...args: any[]) => void> = ((...args: Parameters<T>) => void) & {
+  cancel: () => void;
+};
+
 export class InferCore {
   private country: CountryCode;
   private authKey: string;
@@ -32,7 +36,9 @@ export class InferCore {
   private onSelect: (selection: AddressValue | string | null) => void;
   public state: InferState;
   private abortController: AbortController | null = null;
-  private debouncedFetch: (val: string) => void;
+  private debouncedFetch: DebouncedFunction<(val: string) => void>;
+
+  private isSelecting: boolean = false;
 
   constructor(config: InferConfig) {
     this.country = config.country;
@@ -43,6 +49,7 @@ export class InferCore {
     this.onStateChange = config.onStateChange || (() => {});
     this.onSelect = config.onSelect || (() => {});
     this.state = { ...INITIAL_STATE };
+
     this.debouncedFetch = this.debounce(
       (val: string) => this.executeFetch(val),
       DEFAULTS.DEBOUNCE_MS,
@@ -50,6 +57,13 @@ export class InferCore {
   }
 
   public handleInput(value: string): void {
+    if (this.isSelecting) {
+      this.isSelecting = false;
+      return;
+    }
+
+    const isEditingFinal = this.state.stage === 'final' && value !== this.state.query;
+
     this.updateState({
       query: value,
       isValid: false,
@@ -57,7 +71,7 @@ export class InferCore {
       selectedSuggestionIndex: -1,
     });
 
-    if (this.state.stage === 'final') {
+    if (isEditingFinal) {
       this.onSelect(null);
     }
 
@@ -117,19 +131,41 @@ export class InferCore {
   }
 
   public selectItem(item: InferResult | string): void {
+    this.debouncedFetch.cancel();
+    if (this.abortController) {
+      this.abortController.abort();
+    }
+
     const label = typeof item === 'string' ? item : item.label;
 
-    const value =
-      typeof item !== 'string' ? item.value || (item as unknown as AddressValue) : undefined;
+    let logicValue = label;
+    if (typeof item !== 'string' && typeof item.value === 'string') {
+      logicValue = item.value;
+    }
+    const valueObj =
+      typeof item !== 'string' && typeof item.value === 'object' ? item.value : undefined;
 
-    const subtitle = typeof item !== 'string' ? item.subtitle : null;
+    const isFullResult = !!valueObj && Object.keys(valueObj).length > 0;
 
-    if (this.state.stage === 'final') {
-      this.finishSelection(label, value);
+    this.isSelecting = true;
+
+    if (this.state.stage === 'final' || isFullResult) {
+      let finalQuery = label;
+
+      if (valueObj && Object.keys(valueObj).length > 0) {
+        const { street, street_number, house_number, city } = valueObj;
+        const number = street_number || house_number;
+        if (street && number && city) {
+          finalQuery = `${street} ${number}, ${city}`;
+        }
+      }
+
+      this.finishSelection(finalQuery, valueObj);
       return;
     }
 
-    this.processSelection(label, subtitle);
+    const subtitle = typeof item !== 'string' ? item.subtitle : null;
+    this.processSelection(logicValue, subtitle);
   }
 
   private shouldAutoInsertComma(currentVal: string): boolean {
@@ -145,11 +181,21 @@ export class InferCore {
   }
 
   private finishSelection(label: string, value?: AddressValue): void {
-    this.updateState({ query: label, suggestions: [], cities: [], streets: [], isValid: true });
+    this.updateState({
+      query: label,
+      suggestions: [],
+      cities: [],
+      streets: [],
+      isValid: true,
+      stage: 'final',
+    });
     this.onSelect(value || label);
+    setTimeout(() => {
+      this.isSelecting = false;
+    }, 0);
   }
 
-  private processSelection(label: string, subtitle?: string | null): void {
+  private processSelection(text: string, subtitle?: string | null): void {
     const { stage, query } = this.state;
     let nextQuery = query;
 
@@ -158,17 +204,17 @@ export class InferCore {
 
     if (isContextualSelection) {
       if (stage === 'city') {
-        nextQuery = `${subtitle}, ${label}, `;
+        nextQuery = `${subtitle}, ${text}, `;
       } else {
         const prefix = this.getQueryPrefix(query);
-        nextQuery = prefix ? `${prefix} ${label}, ${subtitle}, ` : `${label}, ${subtitle}, `;
+        nextQuery = prefix ? `${prefix} ${text}, ${subtitle}, ` : `${text}, ${subtitle}, `;
       }
       this.updateQueryAndFetch(nextQuery);
       return;
     }
 
     if (stage === 'direct' || stage === 'addition') {
-      this.finishSelection(label);
+      this.finishSelection(text);
       return;
     }
 
@@ -177,9 +223,9 @@ export class InferCore {
       !hasComma && (stage === 'city' || stage === 'street' || stage === 'house_number_first');
 
     if (isFirstSegment) {
-      nextQuery = `${label}, `;
+      nextQuery = `${text}, `;
     } else {
-      nextQuery = this.replaceLastSegment(query, label);
+      nextQuery = this.replaceLastSegment(query, text);
       if (stage !== 'house_number') {
         nextQuery += ', ';
       }
@@ -227,23 +273,62 @@ export class InferCore {
       isLoading: false,
     };
 
+    let autoSelect = false;
+    let autoSelectItem: InferResult | null = null;
+
+    const rawSuggestions = data.suggestions || [];
+    const uniqueSuggestions: InferResult[] = [];
+    const seen = new Set<string>();
+
+    for (const item of rawSuggestions) {
+      const key = `${item.label}|${item.subtitle || ''}|${JSON.stringify(item.value || {})}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        uniqueSuggestions.push(item);
+      }
+    }
+
     if (data.stage === 'mixed') {
       newState.cities = data.cities || [];
       newState.streets = data.streets || [];
       newState.suggestions = [];
     } else {
-      newState.suggestions = data.suggestions || [];
+      newState.suggestions = uniqueSuggestions;
       newState.cities = [];
       newState.streets = [];
+
+      if (data.stage === 'final' && uniqueSuggestions.length === 1) {
+        autoSelect = true;
+        autoSelectItem = uniqueSuggestions[0];
+      }
     }
 
     newState.isValid = data.stage === 'final';
-    this.updateState(newState);
+
+    if (autoSelect && autoSelectItem) {
+      newState.query = autoSelectItem.label;
+      newState.suggestions = [];
+      newState.cities = [];
+      newState.streets = [];
+      newState.isValid = true;
+      this.updateState(newState);
+
+      const val =
+        typeof autoSelectItem.value === 'object' ? autoSelectItem.value : autoSelectItem.label;
+      this.onSelect(val);
+    } else {
+      this.updateState(newState);
+    }
   }
 
   private updateQueryAndFetch(nextQuery: string): void {
     this.updateState({ query: nextQuery, suggestions: [], cities: [], streets: [] });
-    this.handleInput(nextQuery);
+    this.updateState({ isLoading: true, isValid: false });
+    this.debouncedFetch(nextQuery);
+
+    setTimeout(() => {
+      this.isSelecting = false;
+    }, 0);
   }
 
   private replaceLastSegment(fullText: string, newSegment: string): string {
@@ -273,11 +358,21 @@ export class InferCore {
   private debounce<T extends (...args: any[]) => void>(
     func: T,
     wait: number,
-  ): (...args: Parameters<T>) => void {
+  ): DebouncedFunction<T> {
     let timeout: ReturnType<typeof setTimeout> | undefined;
-    return (...args: Parameters<T>) => {
+
+    const debounced = (...args: Parameters<T>) => {
       if (timeout) clearTimeout(timeout);
       timeout = setTimeout(() => func.apply(this, args), wait);
     };
+
+    debounced.cancel = () => {
+      if (timeout) {
+        clearTimeout(timeout);
+        timeout = undefined;
+      }
+    };
+
+    return debounced as DebouncedFunction<T>;
   }
 }

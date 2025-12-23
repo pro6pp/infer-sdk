@@ -1,59 +1,10 @@
-import { InferCore, InferConfig, InferState } from '@pro6pp/infer-core';
-
-const DEFAULT_STYLES = `
-  .pro6pp-wrapper {
-    position: relative;
-    display: block;
-    width: 100%;
-  }
-
-  .pro6pp-dropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    z-index: 10000;
-    background-color: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 0 0 4px 4px;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-height: 250px;
-    overflow-y: auto;
-  }
-
-  .pro6pp-item {
-    padding: 10px 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #f1f5f9;
-    font-family: inherit;
-    font-size: 14px;
-    line-height: 1.4;
-    color: #1e293b;
-    transition: background-color 0.15s ease;
-  }
-
-  .pro6pp-item:last-child {
-    border-bottom: none;
-  }
-
-  .pro6pp-item:hover, .pro6pp-item--active {
-    background-color: #f8fafc;
-    color: #0f172a;
-  }
-
-  .pro6pp-item__subtitle {
-    display: block;
-    font-size: 0.85em;
-    color: #64748b;
-    margin-top: 2px;
-  }
-`;
+import { InferCore, InferConfig, InferState, DEFAULT_STYLES } from '@pro6pp/infer-core';
 
 export interface InferJSConfig extends InferConfig {
   style?: 'default' | 'none';
+  placeholder?: string;
+  inputClass?: string;
+  noResultsText?: string;
 }
 
 export class InferJS {
@@ -61,19 +12,56 @@ export class InferJS {
   private input: HTMLInputElement;
   private list!: HTMLUListElement;
   private wrapper!: HTMLDivElement;
+  private loader!: HTMLDivElement;
   private useDefaultStyles: boolean;
+  private noResultsText: string;
 
-  constructor(target: string | HTMLInputElement, config: InferJSConfig) {
+  constructor(target: string | HTMLElement, config: InferJSConfig) {
     const el = typeof target === 'string' ? document.querySelector(target) : target;
-    if (!el || !(el instanceof HTMLInputElement)) {
-      throw new Error(`InferJS: Target element not found or is not an input.`);
+    if (!el) {
+      throw new Error(`InferJS: Target element not found.`);
     }
-    this.input = el;
-    this.useDefaultStyles = config.style !== 'none';
 
+    this.noResultsText = config.noResultsText || 'No results found';
+    this.useDefaultStyles = config.style !== 'none';
     if (this.useDefaultStyles) {
       this.injectStyles();
     }
+
+    this.wrapper = document.createElement('div');
+    this.wrapper.className = 'pro6pp-wrapper';
+
+    if (el instanceof HTMLInputElement) {
+      this.input = el;
+      this.input.parentNode?.insertBefore(this.wrapper, this.input);
+      this.wrapper.appendChild(this.input);
+    } else {
+      el.appendChild(this.wrapper);
+      this.input = document.createElement('input');
+      this.input.type = 'text';
+      if (config.placeholder) this.input.placeholder = config.placeholder;
+      this.wrapper.appendChild(this.input);
+    }
+
+    if (this.useDefaultStyles) {
+      this.input.classList.add('pro6pp-input');
+    }
+
+    if (config.inputClass) {
+      const classes = config.inputClass.split(' ');
+      this.input.classList.add(...classes);
+    }
+
+    this.loader = document.createElement('div');
+    this.loader.className = 'pro6pp-loader';
+    this.loader.style.display = 'none';
+    this.wrapper.appendChild(this.loader);
+
+    this.list = document.createElement('ul');
+    this.list.className = 'pro6pp-dropdown';
+    this.list.style.display = 'none';
+    this.list.setAttribute('role', 'listbox');
+    this.wrapper.appendChild(this.list);
 
     this.core = new InferCore({
       ...config,
@@ -88,33 +76,17 @@ export class InferJS {
       },
     });
 
-    this.setupDOM();
     this.bindEvents();
   }
 
   private injectStyles() {
-    const styleId = 'pro6pp-infer-styles';
+    const styleId = 'pro6pp-styles';
     if (!document.getElementById(styleId)) {
       const styleEl = document.createElement('style');
       styleEl.id = styleId;
       styleEl.textContent = DEFAULT_STYLES;
       document.head.appendChild(styleEl);
     }
-  }
-
-  private setupDOM() {
-    this.wrapper = document.createElement('div');
-    this.wrapper.className = 'pro6pp-wrapper';
-
-    // move input into wrapper
-    this.input.parentNode?.insertBefore(this.wrapper, this.input);
-    this.wrapper.appendChild(this.input);
-
-    // dropdown List
-    this.list = document.createElement('ul');
-    this.list.className = 'pro6pp-dropdown';
-    this.list.style.display = 'none';
-    this.wrapper.appendChild(this.list);
   }
 
   private bindEvents() {
@@ -127,10 +99,15 @@ export class InferJS {
       this.core.handleKeyDown(e);
     });
 
-    // close on click outside
     document.addEventListener('click', (e) => {
       if (!this.wrapper.contains(e.target as Node)) {
         this.list.style.display = 'none';
+      }
+    });
+
+    this.input.addEventListener('focus', () => {
+      if (this.list.children.length > 0) {
+        this.list.style.display = 'block';
       }
     });
   }
@@ -140,6 +117,8 @@ export class InferJS {
       this.input.value = state.query;
     }
 
+    this.loader.style.display = state.isLoading ? 'block' : 'none';
+
     this.list.innerHTML = '';
 
     const items = [
@@ -148,12 +127,25 @@ export class InferJS {
       ...state.suggestions.map((s) => ({ item: s, type: 'suggestion' })),
     ];
 
-    if (items.length === 0) {
+    const hasResults = items.length > 0;
+
+    const showNoResults =
+      !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
+
+    if (!hasResults && !showNoResults) {
       this.list.style.display = 'none';
       return;
     }
 
     this.list.style.display = 'block';
+
+    if (showNoResults) {
+      const li = document.createElement('li');
+      li.className = 'pro6pp-no-results';
+      li.textContent = this.noResultsText;
+      this.list.appendChild(li);
+      return;
+    }
 
     items.forEach(({ item }, index) => {
       const li = document.createElement('li');
@@ -164,22 +156,41 @@ export class InferJS {
       }
 
       li.setAttribute('role', 'option');
+      li.setAttribute('aria-selected', index === state.selectedSuggestionIndex ? 'true' : 'false');
 
       const labelSpan = document.createElement('span');
       labelSpan.className = 'pro6pp-item__label';
       labelSpan.textContent = item.label;
       li.appendChild(labelSpan);
 
-      if (item.subtitle) {
+      const secondaryText = item.subtitle || item.count;
+      if (secondaryText) {
         const subSpan = document.createElement('span');
         subSpan.className = 'pro6pp-item__subtitle';
-        subSpan.textContent = item.subtitle;
+        subSpan.textContent = `, ${secondaryText}`;
         li.appendChild(subSpan);
       }
 
+      const showChevron = item.value === undefined || item.value === null;
+
+      if (showChevron) {
+        const chevron = document.createElement('div');
+        chevron.className = 'pro6pp-item__chevron';
+        chevron.innerHTML = `
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        `;
+        li.appendChild(chevron);
+      }
+
+      li.onmousedown = (e) => e.preventDefault();
       li.onclick = (e) => {
         e.stopPropagation();
         this.core.selectItem(item);
+        if (!state.isValid) {
+          this.input.focus();
+        }
       };
 
       this.list.appendChild(li);
@@ -187,6 +198,6 @@ export class InferJS {
   }
 }
 
-export function attach(target: string | HTMLInputElement, config: InferJSConfig) {
+export function attach(target: string | HTMLElement, config: InferJSConfig) {
   return new InferJS(target, config);
 }

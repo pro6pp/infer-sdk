@@ -1,5 +1,5 @@
 {
-  "name": "infer-js-sdk-root",
+  "name": "infer-sdk-root",
   "private": true,
   "workspaces": [
     "packages/*",
