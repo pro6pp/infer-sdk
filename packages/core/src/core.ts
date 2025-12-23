@@ -10,6 +10,9 @@ const PATTERNS = {
   DIGITS_1_3: /^[0-9]{1,3}$/,
 };
 
+/**
+ * The initial state of the address inference engine.
+ */
 export const INITIAL_STATE: InferState = {
   query: '',
   stage: null,
@@ -26,6 +29,10 @@ type DebouncedFunction<T extends (...args: any[]) => void> = ((...args: Paramete
   cancel: () => void;
 };
 
+/**
+ * The core logic engine for Pro6PP Infer.
+ * Manages API communication, state transitions, and keyboard interaction logic.
+ */
 export class InferCore {
   private country: CountryCode;
   private authKey: string;
@@ -34,12 +41,20 @@ export class InferCore {
   private fetcher: Fetcher;
   private onStateChange: (state: InferState) => void;
   private onSelect: (selection: AddressValue | string | null) => void;
+  /**
+   * The current read-only state of the engine.
+   * Use `onStateChange` to react to updates.
+   */
   public state: InferState;
   private abortController: AbortController | null = null;
   private debouncedFetch: DebouncedFunction<(val: string) => void>;
 
   private isSelecting: boolean = false;
 
+  /**
+   * Initializes a new instance of the Infer engine.
+   * @param config The configuration object including API keys and callbacks.
+   */
   constructor(config: InferConfig) {
     this.country = config.country;
     this.authKey = config.authKey;
@@ -56,6 +71,11 @@ export class InferCore {
     );
   }
 
+  /**
+   * Processes new text input from the user.
+   * Triggers a debounced API request and updates the internal state.
+   * @param value The raw string from the input field.
+   */
   public handleInput(value: string): void {
     if (this.isSelecting) {
       this.isSelecting = false;
@@ -78,6 +98,14 @@ export class InferCore {
     this.debouncedFetch(value);
   }
 
+  /**
+   * Handles keyboard events for the input field.
+   * Supports:
+   * - `ArrowUp`/`ArrowDown`: Navigate through the suggestion list.
+   * - `Enter`: Select the currently highlighted suggestion.
+   * - `Space`: Automatically inserts a comma if a numeric house number is detected.
+   * @param event The keyboard event from the input element.
+   */
   public handleKeyDown(
     event: KeyboardEvent | { key: string; target: EventTarget | null; preventDefault: () => void },
   ): void {
@@ -130,6 +158,11 @@ export class InferCore {
     }
   }
 
+  /**
+   * Manually selects a suggestion or a string value.
+   * This is typically called when a user clicks a suggestion in the UI.
+   * @param item The suggestion object or string to select.
+   */
   public selectItem(item: InferResult | string): void {
     this.debouncedFetch.cancel();
     if (this.abortController) {
@@ -160,7 +193,7 @@ export class InferCore {
         }
       }
 
-      this.finishSelection(finalQuery, valueObj);
+      this.finishSelection(finalQuery, valueObj as AddressValue);
       return;
     }
 

@@ -8,6 +8,11 @@ import {
   DEFAULT_STYLES,
 } from '@pro6pp/infer-core';
 
+/**
+ * A headless React hook that provides the logic for address search using the Infer API.
+ * @param config The engine configuration (authKey, country, etc.).
+ * @returns An object containing the current state, the core instance, and pre-bound input props.
+ */
 export function useInfer(config: InferConfig) {
   const [state, setState] = useState<InferState>(INITIAL_STATE);
 
@@ -24,28 +29,53 @@ export function useInfer(config: InferConfig) {
   }, [config.country, config.authKey, config.limit]);
 
   return {
+    /** The current UI state (suggestions, loading status, query, etc.). */
     state,
+    /** The raw InferCore instance for manual control. */
     core,
+    /** Pre-configured event handlers to spread onto an <input /> element. */
     inputProps: {
       value: state.query,
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => core.handleInput(e.target.value),
       onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => core.handleKeyDown(e),
     },
+    /** Function to manually select a specific suggestion. */
     selectItem: (item: InferResult | string) => core.selectItem(item),
   };
 }
 
+/**
+ * Props for the Pro6PPInfer component.
+ */
 export interface Pro6PPInferProps extends InferConfig {
+  /** Optional CSS class for the wrapper div. */
   className?: string;
+  /** Optional inline styles for the wrapper div. */
   style?: React.CSSProperties;
+  /** Attributes to pass directly to the underlying input element. */
   inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  /** * Custom placeholder text.
+   * @default 'Start typing an address...'
+   */
   placeholder?: string;
+  /** A custom render function for individual suggestion items. */
   renderItem?: (item: InferResult, isActive: boolean) => React.ReactNode;
+  /** * If true, prevents the default CSS theme from being injected.
+   * @default false
+   */
   disableDefaultStyles?: boolean;
+  /** * The text to show when no results are found.
+   * @default 'No results found'
+   */
   noResultsText?: string;
+  /** A custom render function for the "no results" state. */
   renderNoResults?: (state: InferState) => React.ReactNode;
 }
 
+/**
+ * A styled React component for Pro6PP Infer API.
+ * Includes styling, keyboard navigation, and loading states.
+ */
 export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
   className,
   style,
@@ -113,7 +143,7 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
           {hasResults ? (
             items.map((item, index) => {
               const isActive = index === state.selectedSuggestionIndex;
-              const secondaryText = item.subtitle || item.count;
+              const secondaryText = item.subtitle || (item.count !== undefined ? item.count : '');
               const showChevron = item.value === undefined || item.value === null;
 
               return (

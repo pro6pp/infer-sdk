@@ -1,12 +1,35 @@
 import { InferCore, InferConfig, InferState, DEFAULT_STYLES } from '@pro6pp/infer-core';
 
+/**
+ * Configuration options for the JS Infer SDK.
+ */
 export interface InferJSConfig extends InferConfig {
+  /**
+   * The styling theme to apply.
+   * - `default`: Injects the standard Pro6PP CSS theme.
+   * - `none`: No styles are applied, allowing for custom CSS.
+   * @default 'default'
+   */
   style?: 'default' | 'none';
+  /**
+   * Custom placeholder text for the input field.
+   */
   placeholder?: string;
+  /**
+   * Additional CSS classes to add to the input element.
+   */
   inputClass?: string;
+  /**
+   * The text to display when no suggestions are found.
+   * @default 'No results found'
+   */
   noResultsText?: string;
 }
 
+/**
+ * The JS implementation of the Pro6PP Infer SDK.
+ * This class manages the DOM elements, event listeners, and rendering for the autocomplete UI.
+ */
 export class InferJS {
   private core: InferCore;
   private input: HTMLInputElement;
@@ -16,6 +39,11 @@ export class InferJS {
   private useDefaultStyles: boolean;
   private noResultsText: string;
 
+  /**
+   * Initializes the Infer logic on a target element.
+   * @param target Either a CSS selector string or a direct HTMLElement.
+   * @param config Configuration options for the API and UI.
+   */
   constructor(target: string | HTMLElement, config: InferJSConfig) {
     const el = typeof target === 'string' ? document.querySelector(target) : target;
     if (!el) {
@@ -198,6 +226,12 @@ export class InferJS {
   }
 }
 
+/**
+ * A helper to initialize the Pro6PP Infer SDK on a target element.
+ * @param target A CSS selector string or HTMLElement.
+ * @param config Configuration for the SDK.
+ * @returns An instance of InferJS.
+ */
 export function attach(target: string | HTMLElement, config: InferJSConfig) {
   return new InferJS(target, config);
 }
