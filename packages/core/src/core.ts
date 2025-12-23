@@ -3,7 +3,8 @@ import { InferConfig, InferState, InferResult, Fetcher, AddressValue, CountryCod
 const DEFAULTS = {
   API_URL: 'https://api.pro6pp.nl/v2',
   LIMIT: 1000,
-  DEBOUNCE_MS: 300,
+  DEBOUNCE_MS: 150,
+  MIN_DEBOUNCE_MS: 50,
 };
 
 const PATTERNS = {
@@ -65,10 +66,11 @@ export class InferCore {
     this.onSelect = config.onSelect || (() => {});
     this.state = { ...INITIAL_STATE };
 
-    this.debouncedFetch = this.debounce(
-      (val: string) => this.executeFetch(val),
-      DEFAULTS.DEBOUNCE_MS,
-    );
+    const configDebounce =
+      config.debounceMs !== undefined ? config.debounceMs : DEFAULTS.DEBOUNCE_MS;
+    const debounceTime = Math.max(configDebounce, DEFAULTS.MIN_DEBOUNCE_MS);
+
+    this.debouncedFetch = this.debounce((val: string) => this.executeFetch(val), debounceTime);
   }
 
   /**

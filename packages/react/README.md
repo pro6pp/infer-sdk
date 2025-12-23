@@ -42,6 +42,7 @@ You can customize the appearance of the component via the following props:
 | `noResultsText`        | The text to display when no suggestions are found.                                        |
 | `renderItem`           | A custom render function for suggestion items, receiving the `item` and `isActive` state. |
 | `renderNoResults`      | A custom render function for the empty state, receiving the current `state`.              |
+| `debounceMs`           | Delay in ms before API search. Defaults to `150` (min `50`).                              |
 
 ---
 

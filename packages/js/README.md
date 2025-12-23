@@ -5,7 +5,7 @@ A library that adds address autocompletion to any HTML input field.
 
 ## Installation
 
-### Option 1: CDN
+#### Option 1: CDN
 
 Add this script to your HTML file. It exposes a global `Pro6PP` variable.
 
@@ -13,7 +13,7 @@ Add this script to your HTML file. It exposes a global `Pro6PP` variable.
 <script src="https://unpkg.com/@pro6pp/infer-js"></script>
 ```
 
-### Option 2: NPM
+#### Option 2: NPM
 
 If you are using a build tool like Webpack or Vite, but not a framework like React.
 
@@ -25,7 +25,7 @@ npm install @pro6pp/infer-js
 
 ## Usage
 
-### Option 1: CDN
+#### Option 1: CDN
 
 1. Add the script to your page.
 2. Create an input field.
@@ -48,7 +48,7 @@ npm install @pro6pp/infer-js
 </script>
 ```
 
-### Option 2: NPM
+#### Option 2: NPM
 
 1. Create an input field.
 2. Import the `attach` function.
@@ -71,6 +71,23 @@ attach(inputElement, {
   },
 });
 ```
+
+## API Configuration
+
+| Prop            | Description                                                   | Default                      |
+| :-------------- | :------------------------------------------------------------ | :--------------------------- |
+| `authKey`       | **(Required)** Your Pro6PP Authorization Key.                 | -                            |
+| `country`       | **(Required)** The country to search in (`'NL'` or `'DE'`).   | -                            |
+| `debounceMs`    | Delay in milliseconds before the API search. Minimum of 50ms. | `150`                        |
+| `style`         | Styling theme. Use `'none'` to disable default CSS.           | `'default'`                  |
+| `placeholder`   | Custom placeholder text for the input field.                  | -                            |
+| `inputClass`    | Additional CSS classes to add to the input element.           | -                            |
+| `noResultsText` | Text to display when no suggestions are found.                | `'No results found'`         |
+| `limit`         | Maximum number of suggestions to request.                     | `1000`                       |
+| `apiUrl`        | Base URL for the Pro6PP API.                                  | `'https://api.pro6pp.nl/v2'` |
+| `fetcher`       | Custom fetch implementation for requests.                     | `window.fetch`               |
+| `onSelect`      | Callback fired when a result is selected.                     | -                            |
+| `onStateChange` | Callback fired whenever the internal state updates.           | -                            |
 
 ## Styling
 

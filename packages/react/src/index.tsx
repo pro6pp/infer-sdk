@@ -26,7 +26,7 @@ export function useInfer(config: InferConfig) {
         }
       },
     });
-  }, [config.country, config.authKey, config.limit]);
+  }, [config.country, config.authKey, config.limit, config.debounceMs]);
 
   return {
     /** The current UI state (suggestions, loading status, query, etc.). */

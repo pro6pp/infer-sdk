@@ -129,6 +129,12 @@ export interface InferConfig {
    */
   limit?: number;
   /**
+   * The delay in milliseconds before performing the API search.
+   * Note: A lower bound of 50ms is enforced to protect API stability.
+   * @default 150
+   */
+  debounceMs?: number;
+  /**
    * Callback triggered whenever the internal state (suggestions, loading status, etc.) updates.
    */
   onStateChange?: (state: InferState) => void;
