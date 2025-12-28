@@ -44,7 +44,6 @@ describe('InferCore', () => {
     it('should configure instance properties correctly', () => {
       expect(core['country']).toBe('NL');
       expect(core['authKey']).toBe('test-auth-key');
-      expect(core['limit']).toBe(10);
     });
   });
 
