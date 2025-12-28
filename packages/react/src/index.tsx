@@ -156,7 +156,13 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
       </div>
 
       {showDropdown && (
-        <ul className="pro6pp-dropdown" role="listbox">
+        <ul
+          className="pro6pp-dropdown"
+          role="listbox"
+          onWheel={(e) => e.stopPropagation()}
+          onMouseDown={(e) => e.stopPropagation()}
+          style={{ overscrollBehavior: 'contain' }}
+        >
           {hasResults ? (
             items.map((item, index) => {
               const isActive = index === state.selectedSuggestionIndex;
