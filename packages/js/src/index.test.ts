@@ -8,6 +8,7 @@ describe('Infer JS', () => {
   let input: HTMLInputElement;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     container = document.createElement('div');
     container.innerHTML = `
       <form>
@@ -27,6 +28,7 @@ describe('Infer JS', () => {
   afterEach(() => {
     document.body.removeChild(container);
     vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it('should attach to the input element', () => {
@@ -46,10 +48,11 @@ describe('Infer JS', () => {
 
     fireEvent.input(input, { target: { value: 'Ams' } });
 
+    vi.advanceTimersByTime(150);
+
     await waitFor(() => {
-      const list = container.querySelector('.pro6pp-dropdown');
-      expect(list).not.toBeNull();
-      expect(list?.children.length).toBe(2);
+      const items = container.querySelectorAll('.pro6pp-item');
+      expect(items.length).toBe(2);
     });
 
     expect(getByText(container, 'Amsterdam')).toBeDefined();
@@ -67,17 +70,19 @@ describe('Infer JS', () => {
     new InferJS(input, { authKey: 'test', country: 'NL', fetcher: mockFetcher });
 
     fireEvent.input(input, { target: { value: 'Utr' } });
+    vi.advanceTimersByTime(150);
+
     const item = await waitFor(() => getByText(container, 'Utrecht'));
 
     fireEvent.click(item);
 
     expect(input.value).toBe('Utrecht, ');
 
-    // check list visibility
+    // check dropdown visibility
     await waitFor(() => {
-      const list = container.querySelector('.pro6pp-dropdown') as HTMLElement;
-      if (list) {
-        expect(list.style.display).toBe('none');
+      const dropdown = container.querySelector('.pro6pp-dropdown') as HTMLElement;
+      if (dropdown) {
+        expect(dropdown.style.display).toBe('none');
       }
     });
   });
@@ -93,6 +98,8 @@ describe('Infer JS', () => {
     new InferJS(input, { authKey: 'test', country: 'NL', fetcher: mockFetcher });
 
     fireEvent.input(input, { target: { value: 'test' } });
+    vi.advanceTimersByTime(150);
+
     await waitFor(() => getByText(container, 'A'));
 
     fireEvent.keyDown(input, { key: 'ArrowDown' });
