@@ -41,6 +41,8 @@ export function useInfer(config: InferConfig) {
     },
     /** Function to manually select a specific suggestion. */
     selectItem: (item: InferResult | string) => core.selectItem(item),
+    /** Function to load more results. */
+    loadMore: () => core.loadMore(),
   };
 }
 
@@ -68,6 +70,10 @@ export interface Pro6PPInferProps extends InferConfig {
    * @default 'No results found'
    */
   noResultsText?: string;
+  /** * The text to show on the load more button.
+   * @default 'Show more results...'
+   */
+  loadMoreText?: string;
   /** A custom render function for the "no results" state. */
   renderNoResults?: (state: InferState) => React.ReactNode;
   /**
@@ -89,11 +95,12 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
   renderItem,
   disableDefaultStyles = false,
   noResultsText = 'No results found',
+  loadMoreText = 'Show more results...',
   renderNoResults,
   showClearButton = true,
   ...config
 }) => {
-  const { state, selectItem, inputProps: coreInputProps, core } = useInfer(config);
+  const { state, selectItem, loadMore, inputProps: coreInputProps, core } = useInfer(config);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -193,63 +200,75 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
       </div>
 
       {showDropdown && (
-        <ul
+        <div
           className="pro6pp-dropdown"
-          role="listbox"
           onWheel={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
-          style={{ overscrollBehavior: 'contain' }}
         >
-          {hasResults ? (
-            items.map((item, index) => {
-              const isActive = index === state.selectedSuggestionIndex;
-              const secondaryText = item.subtitle || (item.count !== undefined ? item.count : '');
-              const showChevron = item.value === undefined || item.value === null;
+          <ul className="pro6pp-list" role="listbox">
+            {hasResults ? (
+              items.map((item, index) => {
+                const isActive = index === state.selectedSuggestionIndex;
+                const secondaryText = item.subtitle || (item.count !== undefined ? item.count : '');
+                const showChevron = item.value === undefined || item.value === null;
 
-              return (
-                <li
-                  key={`${item.label}-${index}`}
-                  role="option"
-                  aria-selected={isActive}
-                  className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
-                  onMouseDown={(e) => e.preventDefault()}
-                  onClick={() => handleSelect(item)}
-                >
-                  {renderItem ? (
-                    renderItem(item, isActive)
-                  ) : (
-                    <>
-                      <span className="pro6pp-item__label">{item.label}</span>
-                      {secondaryText && (
-                        <span className="pro6pp-item__subtitle">, {secondaryText}</span>
-                      )}
-                      {showChevron && (
-                        <div className="pro6pp-item__chevron">
-                          <svg
-                            width="16"
-                            height="16"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                          >
-                            <polyline points="9 18 15 12 9 6"></polyline>
-                          </svg>
-                        </div>
-                      )}
-                    </>
-                  )}
-                </li>
-              );
-            })
-          ) : (
-            <li className="pro6pp-no-results">
-              {renderNoResults ? renderNoResults(state) : noResultsText}
-            </li>
+                return (
+                  <li
+                    key={`${item.label}-${index}`}
+                    role="option"
+                    aria-selected={isActive}
+                    className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => handleSelect(item)}
+                  >
+                    {renderItem ? (
+                      renderItem(item, isActive)
+                    ) : (
+                      <>
+                        <span className="pro6pp-item__label">{item.label}</span>
+                        {secondaryText && (
+                          <span className="pro6pp-item__subtitle">, {secondaryText}</span>
+                        )}
+                        {showChevron && (
+                          <div className="pro6pp-item__chevron">
+                            <svg
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                            >
+                              <polyline points="9 18 15 12 9 6"></polyline>
+                            </svg>
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </li>
+                );
+              })
+            ) : (
+              <li className="pro6pp-no-results">
+                {renderNoResults ? renderNoResults(state) : noResultsText}
+              </li>
+            )}
+          </ul>
+          {state.hasMore && (
+            <button
+              type="button"
+              className="pro6pp-load-more"
+              onClick={(e) => {
+                e.preventDefault();
+                loadMore();
+              }}
+            >
+              {loadMoreText}
+            </button>
           )}
-        </ul>
+        </div>
       )}
     </div>
   );

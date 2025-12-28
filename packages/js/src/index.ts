@@ -25,6 +25,11 @@ export interface InferJSConfig extends InferConfig {
    */
   noResultsText?: string;
   /**
+   * The text to show on the load more button.
+   * @default 'Show more results...'
+   */
+  loadMoreText?: string;
+  /**
    * If true, shows a clear button when the input is not empty.
    * @default true
    */
@@ -39,11 +44,14 @@ export class InferJS {
   private core: InferCore;
   private input: HTMLInputElement;
   private list!: HTMLUListElement;
+  private dropdown!: HTMLDivElement;
   private wrapper!: HTMLDivElement;
   private loader!: HTMLDivElement;
   private clearButton!: HTMLButtonElement;
+  private loadMoreButton!: HTMLButtonElement;
   private useDefaultStyles: boolean;
   private noResultsText: string;
+  private loadMoreText: string;
   private showClearButton: boolean;
 
   /**
@@ -58,6 +66,7 @@ export class InferJS {
     }
 
     this.noResultsText = config.noResultsText || 'No results found';
+    this.loadMoreText = config.loadMoreText || 'Show more results...';
     this.showClearButton = config.showClearButton !== false;
     this.useDefaultStyles = config.style !== 'none';
     if (this.useDefaultStyles) {
@@ -110,11 +119,22 @@ export class InferJS {
     `;
     addons.appendChild(this.clearButton);
 
+    this.dropdown = document.createElement('div');
+    this.dropdown.className = 'pro6pp-dropdown';
+    this.dropdown.style.display = 'none';
+    this.wrapper.appendChild(this.dropdown);
+
     this.list = document.createElement('ul');
-    this.list.className = 'pro6pp-dropdown';
-    this.list.style.display = 'none';
+    this.list.className = 'pro6pp-list';
     this.list.setAttribute('role', 'listbox');
-    this.wrapper.appendChild(this.list);
+    this.dropdown.appendChild(this.list);
+
+    this.loadMoreButton = document.createElement('button');
+    this.loadMoreButton.type = 'button';
+    this.loadMoreButton.className = 'pro6pp-load-more';
+    this.loadMoreButton.textContent = this.loadMoreText;
+    this.loadMoreButton.style.display = 'none';
+    this.dropdown.appendChild(this.loadMoreButton);
 
     this.core = new InferCore({
       ...config,
@@ -157,15 +177,20 @@ export class InferJS {
       this.input.focus();
     });
 
+    this.loadMoreButton.addEventListener('click', (e) => {
+      e.preventDefault();
+      this.core.loadMore();
+    });
+
     document.addEventListener('click', (e) => {
       if (!this.wrapper.contains(e.target as Node)) {
-        this.list.style.display = 'none';
+        this.dropdown.style.display = 'none';
       }
     });
 
     this.input.addEventListener('focus', () => {
       if (this.list.children.length > 0) {
-        this.list.style.display = 'block';
+        this.dropdown.style.display = 'flex';
       }
     });
   }
@@ -183,11 +208,7 @@ export class InferJS {
 
     this.list.innerHTML = '';
 
-    const items = [
-      ...state.cities.map((c) => ({ item: c, type: 'city' })),
-      ...state.streets.map((s) => ({ item: s, type: 'street' })),
-      ...state.suggestions.map((s) => ({ item: s, type: 'suggestion' })),
-    ];
+    const items = [...state.cities, ...state.streets, ...state.suggestions];
 
     const hasResults = items.length > 0;
 
@@ -195,11 +216,12 @@ export class InferJS {
       !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
 
     if (!hasResults && !showNoResults) {
-      this.list.style.display = 'none';
+      this.dropdown.style.display = 'none';
       return;
     }
 
-    this.list.style.display = 'block';
+    this.dropdown.style.display = 'flex';
+    this.loadMoreButton.style.display = state.hasMore ? 'block' : 'none';
 
     if (showNoResults) {
       const li = document.createElement('li');
@@ -209,7 +231,9 @@ export class InferJS {
       return;
     }
 
-    items.forEach(({ item }, index) => {
+    items.forEach((item, index) => {
+      if (!item.label) return;
+
       const li = document.createElement('li');
       li.className = 'pro6pp-item';
 
@@ -225,8 +249,10 @@ export class InferJS {
       labelSpan.textContent = item.label;
       li.appendChild(labelSpan);
 
-      const secondaryText = item.subtitle || item.count;
-      if (secondaryText) {
+      const countVal = item.count !== undefined && item.count !== null ? item.count : '';
+      const secondaryText = item.subtitle || countVal;
+
+      if (secondaryText !== '') {
         const subSpan = document.createElement('span');
         subSpan.className = 'pro6pp-item__subtitle';
         subSpan.textContent = `, ${secondaryText}`;

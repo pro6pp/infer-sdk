@@ -2,7 +2,7 @@ import { InferConfig, InferState, InferResult, Fetcher, AddressValue, CountryCod
 
 const DEFAULTS = {
   API_URL: 'https://api.pro6pp.nl/v2',
-  LIMIT: 1000,
+  LIMIT: 20,
   DEBOUNCE_MS: 150,
   MIN_DEBOUNCE_MS: 50,
   MAX_RETRIES: 0,
@@ -24,6 +24,7 @@ export const INITIAL_STATE: InferState = {
   isValid: false,
   isError: false,
   isLoading: false,
+  hasMore: false,
   selectedSuggestionIndex: -1,
 };
 
@@ -39,7 +40,8 @@ export class InferCore {
   private country: CountryCode;
   private authKey: string;
   private apiUrl: string;
-  private limit: number;
+  private baseLimit: number;
+  private currentLimit: number;
   private maxRetries: number;
   private fetcher: Fetcher;
   private onStateChange: (state: InferState) => void;
@@ -62,10 +64,13 @@ export class InferCore {
     this.country = config.country;
     this.authKey = config.authKey;
     this.apiUrl = config.apiUrl || DEFAULTS.API_URL;
-    this.limit = config.limit || DEFAULTS.LIMIT;
+    this.baseLimit = config.limit || DEFAULTS.LIMIT;
+    this.currentLimit = this.baseLimit;
+
     const configRetries =
       config.maxRetries !== undefined ? config.maxRetries : DEFAULTS.MAX_RETRIES;
     this.maxRetries = Math.max(0, Math.min(configRetries, 10));
+
     this.fetcher = config.fetcher || ((url, init) => fetch(url, init));
     this.onStateChange = config.onStateChange || (() => {});
     this.onSelect = config.onSelect || (() => {});
@@ -89,6 +94,8 @@ export class InferCore {
       return;
     }
 
+    this.currentLimit = this.baseLimit;
+
     const isEditingFinal = this.state.stage === 'final' && value !== this.state.query;
 
     this.updateState({
@@ -96,6 +103,7 @@ export class InferCore {
       isValid: false,
       isLoading: !!value.trim(),
       selectedSuggestionIndex: -1,
+      hasMore: false,
     });
 
     if (isEditingFinal) {
@@ -103,6 +111,16 @@ export class InferCore {
     }
 
     this.debouncedFetch(value);
+  }
+
+  /**
+   * Increases the current limit and re-fetches the query to show more results.
+   */
+  public loadMore(): void {
+    if (this.state.isLoading) return;
+    this.currentLimit += this.baseLimit;
+    this.updateState({ isLoading: true });
+    this.executeFetch(this.state.query);
   }
 
   /**
@@ -228,6 +246,7 @@ export class InferCore {
       streets: [],
       isValid: true,
       stage: 'final',
+      hasMore: false,
     });
     this.onSelect(value || label);
     setTimeout(() => {
@@ -294,7 +313,7 @@ export class InferCore {
     const params = {
       authKey: this.authKey,
       query: text,
-      limit: this.limit.toString(),
+      limit: this.currentLimit.toString(),
     };
     url.search = new URLSearchParams(params).toString();
 
@@ -354,6 +373,10 @@ export class InferCore {
       }
     }
 
+    const totalCount =
+      uniqueSuggestions.length + (data.cities?.length || 0) + (data.streets?.length || 0);
+    newState.hasMore = totalCount >= this.currentLimit;
+
     if (data.stage === 'mixed') {
       newState.cities = data.cities || [];
       newState.streets = data.streets || [];
@@ -377,6 +400,7 @@ export class InferCore {
       newState.cities = [];
       newState.streets = [];
       newState.isValid = true;
+      newState.hasMore = false;
       this.updateState(newState);
 
       const val =
@@ -389,7 +413,7 @@ export class InferCore {
 
   private updateQueryAndFetch(nextQuery: string): void {
     this.updateState({ query: nextQuery, suggestions: [], cities: [], streets: [] });
-    this.updateState({ isLoading: true, isValid: false });
+    this.updateState({ isLoading: true, isValid: false, hasMore: false });
     this.debouncedFetch(nextQuery);
 
     setTimeout(() => {

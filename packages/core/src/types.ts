@@ -86,6 +86,8 @@ export interface InferState {
   isError: boolean;
   /** Flag indicating if a network request is currently in progress. */
   isLoading: boolean;
+  /** Flag indicating if more results are available to load. */
+  hasMore: boolean;
   /**
    * The index of the currently highlighted suggestion.
    * - `0` to `n`: An item is highlighted via keyboard navigation.
@@ -124,8 +126,8 @@ export interface InferConfig {
    */
   fetcher?: Fetcher;
   /**
-   * Maximum number of suggestions to request from the API.
-   * @default 1000
+   * The number of results to fetch per batch.
+   * @default 20
    */
   limit?: number;
   /**

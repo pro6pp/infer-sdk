@@ -87,9 +87,14 @@ export const DEFAULT_STYLES = `
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     max-height: 300px;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+  }
+  .pro6pp-list {
     list-style: none !important;
     padding: 0 !important;
     margin: 0 !important;
+    flex-grow: 1;
   }
   .pro6pp-item {
     padding: 12px 16px;
@@ -129,8 +134,22 @@ export const DEFAULT_STYLES = `
     color: #6b7280;
     font-size: 14px;
     text-align: center;
-    user-select: none;
-    pointer-events: none;
+  }
+  .pro6pp-load-more {
+    width: 100%;
+    padding: 10px;
+    background: #f9fafb;
+    border: none;
+    border-top: 1px solid #e0e0e0;
+    color: #3b82f6;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    flex-shrink: 0;
+  }
+  .pro6pp-load-more:hover {
+    background-color: #f3f4f6;
   }
 
   @keyframes pro6pp-spin {
