@@ -44,6 +44,8 @@ You can customize the appearance of the component via the following props:
 | `renderNoResults`      | A custom render function for the empty state, receiving the current `state`.              |
 | `debounceMs`           | Delay in ms before API search. Defaults to `150` (min `50`).                              |
 | `maxRetries`           | Maximum retry attempts for transient network errors. Valid range: `0` to `10`.            |
+| `showClearButton`      | If `true`, displays a button to empty the input field. Defaults to `true`.                |
+| `loadMoreText`         | The text to display on the pagination button.                                             |
 
 ---
 
