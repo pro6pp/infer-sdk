@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.9
+
+### Patch Changes
+
+- Implemented retrying for network errors and added a "Load more" button.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.7
+
 ## 0.0.2-beta.8
 
 ### Patch Changes

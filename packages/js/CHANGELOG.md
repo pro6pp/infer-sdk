@@ -1,5 +1,13 @@
 # @pro6pp/infer-js
 
+## 0.0.2-beta.7
+
+### Patch Changes
+
+- Implemented retrying for network errors and added a "Load more" button.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.7
+
 ## 0.0.2-beta.6
 
 ### Patch Changes

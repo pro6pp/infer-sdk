@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.7
+
+### Patch Changes
+
+- Implemented retrying for network errors and added a "Load more" button.
+
 ## 0.0.2-beta.6
 
 ### Patch Changes
