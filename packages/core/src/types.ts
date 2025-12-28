@@ -135,6 +135,11 @@ export interface InferConfig {
    */
   debounceMs?: number;
   /**
+   * Maximum number of retry attempts for transient network errors.
+   * @default 0
+   */
+  maxRetries?: number;
+  /**
    * Callback triggered whenever the internal state (suggestions, loading status, etc.) updates.
    */
   onStateChange?: (state: InferState) => void;

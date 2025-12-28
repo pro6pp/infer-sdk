@@ -11,6 +11,7 @@ export const DEFAULT_STYLES = `
   .pro6pp-input {
     width: 100%;
     padding: 10px 12px;
+    padding-right: 48px;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
     font-size: 16px;
@@ -22,6 +23,57 @@ export const DEFAULT_STYLES = `
     border-color: #3b82f6;
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
   }
+
+  .pro6pp-input-addons {
+    position: absolute;
+    right: 6px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    pointer-events: none;
+  }
+  .pro6pp-input-addons > * {
+    pointer-events: auto;
+  }
+
+  .pro6pp-clear-button {
+    background: none;
+    border: none;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    color: #a3a3a3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: color 0.2s, background-color 0.2s, transform 0.1s;
+  }
+  .pro6pp-clear-button:hover {
+    color: #1f2937;
+    background-color: #f3f4f6;
+  }
+  .pro6pp-clear-button:active {
+    transform: scale(0.92);
+  }
+  .pro6pp-clear-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .pro6pp-loader {
+    width: 18px;
+    height: 18px;
+    margin: 0 4px;
+    border: 2px solid #e0e0e0;
+    border-top-color: #6b7280;
+    border-radius: 50%;
+    animation: pro6pp-spin 0.6s linear infinite;
+    flex-shrink: 0;
+  }
+
   .pro6pp-dropdown {
     position: absolute;
     top: 100%;
@@ -32,7 +84,7 @@ export const DEFAULT_STYLES = `
     background: white;
     border: 1px solid #e0e0e0;
     border-radius: 4px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     max-height: 300px;
     overflow-y: auto;
     list-style: none !important;
@@ -40,19 +92,19 @@ export const DEFAULT_STYLES = `
     margin: 0 !important;
   }
   .pro6pp-item {
-    padding: 10px 16px;
+    padding: 12px 16px;
     cursor: pointer;
     display: flex;
     flex-direction: row;
     align-items: center;
-    color: #000000;
+    color: #111827;
     font-size: 14px;
     line-height: 1.2;
     white-space: nowrap;
     overflow: hidden;
   }
   .pro6pp-item:hover, .pro6pp-item--active {
-    background-color: #f5f5f5;
+    background-color: #f9fafb;
   }
   .pro6pp-item__label {
     font-weight: 500;
@@ -60,7 +112,7 @@ export const DEFAULT_STYLES = `
   }
   .pro6pp-item__subtitle {
     font-size: 14px;
-    color: #404040;
+    color: #6b7280;
     overflow: hidden;
     text-overflow: ellipsis;
     flex-shrink: 1;
@@ -69,31 +121,19 @@ export const DEFAULT_STYLES = `
     margin-left: auto;
     display: flex;
     align-items: center;
-    color: #a3a3a3;
+    color: #9ca3af;
     padding-left: 8px;
   }
   .pro6pp-no-results {
-    padding: 12px;
-    color: #555555;
+    padding: 16px;
+    color: #6b7280;
     font-size: 14px;
     text-align: center;
     user-select: none;
     pointer-events: none;
   }
-  .pro6pp-loader {
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 16px;
-    height: 16px;
-    border: 2px solid #e0e0e0;
-    border-top-color: #404040;
-    border-radius: 50%;
-    animation: pro6pp-spin 0.6s linear infinite;
-    pointer-events: none;
-  }
+
   @keyframes pro6pp-spin {
-    to { transform: translateY(-50%) rotate(360deg); }
+    to { transform: rotate(360deg); }
   }
 `;

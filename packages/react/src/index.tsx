@@ -26,7 +26,7 @@ export function useInfer(config: InferConfig) {
         }
       },
     });
-  }, [config.country, config.authKey, config.limit, config.debounceMs]);
+  }, [config.country, config.authKey, config.limit, config.debounceMs, config.maxRetries]);
 
   return {
     /** The current UI state (suggestions, loading status, query, etc.). */
@@ -70,6 +70,11 @@ export interface Pro6PPInferProps extends InferConfig {
   noResultsText?: string;
   /** A custom render function for the "no results" state. */
   renderNoResults?: (state: InferState) => React.ReactNode;
+  /**
+   * If true, shows a clear button when the input is not empty.
+   * @default true
+   */
+  showClearButton?: boolean;
 }
 
 /**
@@ -85,9 +90,10 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
   disableDefaultStyles = false,
   noResultsText = 'No results found',
   renderNoResults,
+  showClearButton = true,
   ...config
 }) => {
-  const { state, selectItem, inputProps: coreInputProps } = useInfer(config);
+  const { state, selectItem, inputProps: coreInputProps, core } = useInfer(config);
   const [isOpen, setIsOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -130,6 +136,13 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
     }
   };
 
+  const handleClear = () => {
+    core.handleInput('');
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   const hasResults = items.length > 0;
   const showNoResults =
     !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
@@ -152,7 +165,31 @@ export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
             inputProps?.onFocus?.(e);
           }}
         />
-        {state.isLoading && <div className="pro6pp-loader" />}
+        <div className="pro6pp-input-addons">
+          {state.isLoading && <div className="pro6pp-loader" />}
+          {showClearButton && state.query.length > 0 && (
+            <button
+              type="button"
+              className="pro6pp-clear-button"
+              onClick={handleClear}
+              aria-label="Clear input"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          )}
+        </div>
       </div>
 
       {showDropdown && (

@@ -5,6 +5,7 @@ const DEFAULTS = {
   LIMIT: 1000,
   DEBOUNCE_MS: 150,
   MIN_DEBOUNCE_MS: 50,
+  MAX_RETRIES: 0,
 };
 
 const PATTERNS = {
@@ -39,6 +40,7 @@ export class InferCore {
   private authKey: string;
   private apiUrl: string;
   private limit: number;
+  private maxRetries: number;
   private fetcher: Fetcher;
   private onStateChange: (state: InferState) => void;
   private onSelect: (selection: AddressValue | string | null) => void;
@@ -61,6 +63,9 @@ export class InferCore {
     this.authKey = config.authKey;
     this.apiUrl = config.apiUrl || DEFAULTS.API_URL;
     this.limit = config.limit || DEFAULTS.LIMIT;
+    const configRetries =
+      config.maxRetries !== undefined ? config.maxRetries : DEFAULTS.MAX_RETRIES;
+    this.maxRetries = Math.max(0, Math.min(configRetries, 10));
     this.fetcher = config.fetcher || ((url, init) => fetch(url, init));
     this.onStateChange = config.onStateChange || (() => {});
     this.onSelect = config.onSelect || (() => {});
@@ -269,7 +274,7 @@ export class InferCore {
     this.updateQueryAndFetch(nextQuery);
   }
 
-  private executeFetch(val: string): void {
+  private executeFetch(val: string, attempt: number = 0): void {
     const text = (val || '').toString();
     if (!text.trim()) {
       this.abortController?.abort();
@@ -277,9 +282,13 @@ export class InferCore {
       return;
     }
 
-    this.updateState({ isError: false });
-    if (this.abortController) this.abortController.abort();
-    this.abortController = new AbortController();
+    if (attempt === 0) {
+      this.updateState({ isError: false });
+      if (this.abortController) this.abortController.abort();
+      this.abortController = new AbortController();
+    }
+
+    const currentSignal = this.abortController?.signal;
 
     const url = new URL(`${this.apiUrl}/infer/${this.country.toLowerCase()}`);
     const params = {
@@ -289,17 +298,39 @@ export class InferCore {
     };
     url.search = new URLSearchParams(params).toString();
 
-    this.fetcher(url.toString(), { signal: this.abortController.signal })
+    this.fetcher(url.toString(), { signal: currentSignal })
       .then((res) => {
-        if (!res.ok) throw new Error('Network error');
+        if (!res.ok) {
+          if (attempt < this.maxRetries && (res.status >= 500 || res.status === 429)) {
+            return this.retry(val, attempt, currentSignal);
+          }
+          throw new Error('Network error');
+        }
         return res.json();
       })
-      .then((data) => this.mapResponseToState(data))
+      .then((data) => {
+        if (data) this.mapResponseToState(data);
+      })
       .catch((e) => {
-        if (e.name !== 'AbortError') {
-          this.updateState({ isError: true, isLoading: false });
+        if (e.name === 'AbortError') return;
+
+        if (attempt < this.maxRetries) {
+          return this.retry(val, attempt, currentSignal);
         }
+
+        this.updateState({ isError: true, isLoading: false });
       });
+  }
+
+  private retry(val: string, attempt: number, signal?: AbortSignal): void {
+    if (signal?.aborted) return;
+
+    const delay = Math.pow(2, attempt) * 200;
+    setTimeout(() => {
+      if (!signal?.aborted) {
+        this.executeFetch(val, attempt + 1);
+      }
+    }, delay);
   }
 
   private mapResponseToState(data: any): void {

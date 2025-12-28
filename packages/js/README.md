@@ -74,20 +74,21 @@ attach(inputElement, {
 
 ## API Configuration
 
-| Prop            | Description                                                   | Default                      |
-| :-------------- | :------------------------------------------------------------ | :--------------------------- |
-| `authKey`       | **(Required)** Your Pro6PP Authorization Key.                 | -                            |
-| `country`       | **(Required)** The country to search in (`'NL'` or `'DE'`).   | -                            |
-| `debounceMs`    | Delay in milliseconds before the API search. Minimum of 50ms. | `150`                        |
-| `style`         | Styling theme. Use `'none'` to disable default CSS.           | `'default'`                  |
-| `placeholder`   | Custom placeholder text for the input field.                  | -                            |
-| `inputClass`    | Additional CSS classes to add to the input element.           | -                            |
-| `noResultsText` | Text to display when no suggestions are found.                | `'No results found'`         |
-| `limit`         | Maximum number of suggestions to request.                     | `1000`                       |
-| `apiUrl`        | Base URL for the Pro6PP API.                                  | `'https://api.pro6pp.nl/v2'` |
-| `fetcher`       | Custom fetch implementation for requests.                     | `window.fetch`               |
-| `onSelect`      | Callback fired when a result is selected.                     | -                            |
-| `onStateChange` | Callback fired whenever the internal state updates.           | -                            |
+| Prop            | Description                                                                    | Default                      |
+| :-------------- | :----------------------------------------------------------------------------- | :--------------------------- |
+| `authKey`       | **(Required)** Your Pro6PP Authorization Key.                                  | -                            |
+| `country`       | **(Required)** The country to search in (`'NL'` or `'DE'`).                    | -                            |
+| `debounceMs`    | Delay in milliseconds before the API search. Minimum of 50ms.                  | `150`                        |
+| `maxRetries`    | Maximum retry attempts for transient network errors. Valid range: `0` to `10`. | `0`                          |
+| `style`         | Styling theme. Use `'none'` to disable default CSS.                            | `'default'`                  |
+| `placeholder`   | Custom placeholder text for the input field.                                   | -                            |
+| `inputClass`    | Additional CSS classes to add to the input element.                            | -                            |
+| `noResultsText` | Text to display when no suggestions are found.                                 | `'No results found'`         |
+| `limit`         | Maximum number of suggestions to request.                                      | `1000`                       |
+| `apiUrl`        | Base URL for the Pro6PP API.                                                   | `'https://api.pro6pp.nl/v2'` |
+| `fetcher`       | Custom fetch implementation for requests.                                      | `window.fetch`               |
+| `onSelect`      | Callback fired when a result is selected.                                      | -                            |
+| `onStateChange` | Callback fired whenever the internal state updates.                            | -                            |
 
 ## Styling
 

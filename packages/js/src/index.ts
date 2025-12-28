@@ -24,6 +24,11 @@ export interface InferJSConfig extends InferConfig {
    * @default 'No results found'
    */
   noResultsText?: string;
+  /**
+   * If true, shows a clear button when the input is not empty.
+   * @default true
+   */
+  showClearButton?: boolean;
 }
 
 /**
@@ -36,8 +41,10 @@ export class InferJS {
   private list!: HTMLUListElement;
   private wrapper!: HTMLDivElement;
   private loader!: HTMLDivElement;
+  private clearButton!: HTMLButtonElement;
   private useDefaultStyles: boolean;
   private noResultsText: string;
+  private showClearButton: boolean;
 
   /**
    * Initializes the Infer logic on a target element.
@@ -51,6 +58,7 @@ export class InferJS {
     }
 
     this.noResultsText = config.noResultsText || 'No results found';
+    this.showClearButton = config.showClearButton !== false;
     this.useDefaultStyles = config.style !== 'none';
     if (this.useDefaultStyles) {
       this.injectStyles();
@@ -80,10 +88,27 @@ export class InferJS {
       this.input.classList.add(...classes);
     }
 
+    const addons = document.createElement('div');
+    addons.className = 'pro6pp-input-addons';
+    this.wrapper.appendChild(addons);
+
     this.loader = document.createElement('div');
     this.loader.className = 'pro6pp-loader';
     this.loader.style.display = 'none';
-    this.wrapper.appendChild(this.loader);
+    addons.appendChild(this.loader);
+
+    this.clearButton = document.createElement('button');
+    this.clearButton.type = 'button';
+    this.clearButton.className = 'pro6pp-clear-button';
+    this.clearButton.setAttribute('aria-label', 'Clear input');
+    this.clearButton.style.display = 'none';
+    this.clearButton.innerHTML = `
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+      </svg>
+    `;
+    addons.appendChild(this.clearButton);
 
     this.list = document.createElement('ul');
     this.list.className = 'pro6pp-dropdown';
@@ -127,6 +152,11 @@ export class InferJS {
       this.core.handleKeyDown(e);
     });
 
+    this.clearButton.addEventListener('click', () => {
+      this.core.handleInput('');
+      this.input.focus();
+    });
+
     document.addEventListener('click', (e) => {
       if (!this.wrapper.contains(e.target as Node)) {
         this.list.style.display = 'none';
@@ -146,6 +176,10 @@ export class InferJS {
     }
 
     this.loader.style.display = state.isLoading ? 'block' : 'none';
+
+    if (this.showClearButton) {
+      this.clearButton.style.display = state.query.length > 0 ? 'flex' : 'none';
+    }
 
     this.list.innerHTML = '';
 
