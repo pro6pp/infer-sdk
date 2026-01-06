@@ -90,6 +90,13 @@ export class InferJS {
       this.wrapper.appendChild(this.input);
     }
 
+    this.input.setAttribute('autocomplete', 'off');
+    this.input.setAttribute('autocorrect', 'off');
+    this.input.setAttribute('autocapitalize', 'none');
+    this.input.setAttribute('spellcheck', 'false');
+    this.input.setAttribute('inputmode', 'search');
+    this.input.setAttribute('enterkeyhint', 'search');
+
     if (this.useDefaultStyles) {
       this.input.classList.add('pro6pp-input');
     }
@@ -230,6 +237,7 @@ export class InferJS {
     if (state.isLoading && !hasResults) {
       const li = document.createElement('li');
       li.className = 'pro6pp-no-results';
+      li.textContent = 'Loading suggestions...';
       this.list.appendChild(li);
       return;
     }

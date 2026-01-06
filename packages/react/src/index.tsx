@@ -198,6 +198,11 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
             className="pro6pp-input"
             placeholder={placeholder}
             autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
+            inputMode="search"
+            enterKeyHint="search"
             {...inputProps}
             {...coreInputProps}
             onFocus={(e) => {
