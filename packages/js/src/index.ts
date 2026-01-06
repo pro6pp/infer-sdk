@@ -53,6 +53,7 @@ export class InferJS {
   private noResultsText: string;
   private loadMoreText: string;
   private showClearButton: boolean;
+  private isOpen: boolean = false;
 
   /**
    * Initializes the Infer logic on a target element.
@@ -69,6 +70,7 @@ export class InferJS {
     this.loadMoreText = config.loadMoreText || 'Show more results...';
     this.showClearButton = config.showClearButton !== false;
     this.useDefaultStyles = config.style !== 'none';
+
     if (this.useDefaultStyles) {
       this.injectStyles();
     }
@@ -165,6 +167,7 @@ export class InferJS {
   private bindEvents() {
     this.input.addEventListener('input', (e) => {
       const val = (e.target as HTMLInputElement).value;
+      this.isOpen = true;
       this.core.handleInput(val);
     });
 
@@ -182,16 +185,16 @@ export class InferJS {
       this.core.loadMore();
     });
 
-    document.addEventListener('click', (e) => {
+    document.addEventListener('mousedown', (e) => {
       if (!this.wrapper.contains(e.target as Node)) {
+        this.isOpen = false;
         this.dropdown.style.display = 'none';
       }
     });
 
     this.input.addEventListener('focus', () => {
-      if (this.list.children.length > 0) {
-        this.dropdown.style.display = 'flex';
-      }
+      this.isOpen = true;
+      this.render(this.core.state);
     });
   }
 
@@ -209,19 +212,27 @@ export class InferJS {
     this.list.innerHTML = '';
 
     const items = [...state.cities, ...state.streets, ...state.suggestions];
-
     const hasResults = items.length > 0;
 
     const showNoResults =
       !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
 
-    if (!hasResults && !showNoResults) {
+    const shouldShowDropdown = this.isOpen && (hasResults || state.isLoading || showNoResults);
+
+    if (!shouldShowDropdown) {
       this.dropdown.style.display = 'none';
       return;
     }
 
     this.dropdown.style.display = 'flex';
     this.loadMoreButton.style.display = state.hasMore ? 'block' : 'none';
+
+    if (state.isLoading && !hasResults) {
+      const li = document.createElement('li');
+      li.className = 'pro6pp-no-results';
+      this.list.appendChild(li);
+      return;
+    }
 
     if (showNoResults) {
       const li = document.createElement('li');
@@ -275,9 +286,14 @@ export class InferJS {
       li.onmousedown = (e) => e.preventDefault();
       li.onclick = (e) => {
         e.stopPropagation();
-        this.core.selectItem(item);
-        if (!state.isValid) {
-          this.input.focus();
+
+        const isFinal = this.core.selectItem(item);
+
+        if (!isFinal) {
+          setTimeout(() => this.input.focus(), 0);
+        } else {
+          this.isOpen = false;
+          this.dropdown.style.display = 'none';
         }
       };
 

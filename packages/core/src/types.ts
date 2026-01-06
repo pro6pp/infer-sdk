@@ -108,15 +108,16 @@ export type Fetcher = (input: RequestInfo | URL, init?: RequestInit) => Promise<
 export interface InferConfig {
   /**
    * Your Pro6PP Authorization Key.
+   * Optional if using a proxy.
    */
-  authKey: string;
+  authKey?: string;
   /**
    * The country to perform address lookups in.
    */
   country: CountryCode;
   /**
-   * Base URL for the Pro6PP API.
-   * @default 'https://api.pro6pp.nl/v2'
+   * * If provided, this URL is used as the API endpoint (query params will be appended).
+   * * If not provided, the SDK defaults to 'https://api.pro6pp.nl/v2/infer/{country}'.
    */
   apiUrl?: string;
 
@@ -126,7 +127,7 @@ export interface InferConfig {
    */
   fetcher?: Fetcher;
   /**
-   * The number of results to fetch per batch.
+   * Number of suggestions to request per batch.
    * @default 20
    */
   limit?: number;
@@ -138,6 +139,7 @@ export interface InferConfig {
   debounceMs?: number;
   /**
    * Maximum number of retry attempts for transient network errors.
+   * Valid range: 0 to 10.
    * @default 0
    */
   maxRetries?: number;

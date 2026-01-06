@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.8
+
+### Patch Changes
+
+- Support proxy via custom apiUrl and fix minor JS and React bugs
+
 ## 0.0.2-beta.7
 
 ### Patch Changes

@@ -23,6 +23,10 @@ npm install @pro6pp/infer-js
 
 > **Note:** If you are using React, use [`@pro6pp/infer-react`](https://www.npmjs.com/package/@pro6pp/infer-react) instead.
 
+#### Option 3: Direct download
+
+You can also [download](https://unpkg.com/@pro6pp/infer-js@latest/dist/index.global.js) the latest `index.global.js` and place it in your project.
+
 ## Usage
 
 #### Option 1: CDN
@@ -72,25 +76,20 @@ attach(inputElement, {
 });
 ```
 
-## API Configuration
+#### Option 3: Direct download
 
-| Prop              | Description                                                                    | Default                      |
-| :---------------- | :----------------------------------------------------------------------------- | :--------------------------- |
-| `authKey`         | **(Required)** Your Pro6PP Authorization Key.                                  | -                            |
-| `country`         | **(Required)** The country to search in (`'NL'` or `'DE'`).                    | -                            |
-| `debounceMs`      | Delay in milliseconds before the API search. Minimum of 50ms.                  | `150`                        |
-| `maxRetries`      | Maximum retry attempts for transient network errors. Valid range: `0` to `10`. | `0`                          |
-| `showClearButton` | If `true`, shows a button to clear the input field.                            | `true`                       |
-| `loadMoreText`    | The text to display on the pagination button.                                  | `'Show more results...'`     |
-| `style`           | Styling theme. Use `'none'` to disable default CSS.                            | `'default'`                  |
-| `placeholder`     | Custom placeholder text for the input field.                                   | -                            |
-| `inputClass`      | Additional CSS classes to add to the input element.                            | -                            |
-| `noResultsText`   | Text to display when no suggestions are found.                                 | `'No results found'`         |
-| `limit`           | Maximum number of suggestions to request.                                      | `1000`                       |
-| `apiUrl`          | Base URL for the Pro6PP API.                                                   | `'https://api.pro6pp.nl/v2'` |
-| `fetcher`         | Custom fetch implementation for requests.                                      | `window.fetch`               |
-| `onSelect`        | Callback fired when a result is selected.                                      | -                            |
-| `onStateChange`   | Callback fired whenever the internal state updates.                            | -                            |
+1. [Download](https://unpkg.com/@pro6pp/infer-js@latest/dist/index.global.js) the latest `index.global.js`.
+2. Place it in your project and include it directly in your HTML.
+
+```html
+<script src="path/to/index.global.js"></script>
+<script>
+  const instance = Pro6PP.attach('#my-input', {
+    authKey: 'YOUR_AUTH_KEY',
+    country: 'NL',
+  });
+</script>
+```
 
 ## Styling
 
