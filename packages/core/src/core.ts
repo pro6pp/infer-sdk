@@ -38,8 +38,8 @@ type DebouncedFunction<T extends (...args: any[]) => void> = ((...args: Paramete
  */
 export class InferCore {
   private country: CountryCode;
-  private authKey: string;
-  private apiUrl: string;
+  private authKey?: string;
+  private explicitApiUrl?: string;
   private baseLimit: number;
   private currentLimit: number;
   private maxRetries: number;
@@ -63,7 +63,7 @@ export class InferCore {
   constructor(config: InferConfig) {
     this.country = config.country;
     this.authKey = config.authKey;
-    this.apiUrl = config.apiUrl || DEFAULTS.API_URL;
+    this.explicitApiUrl = config.apiUrl;
     this.baseLimit = config.limit || DEFAULTS.LIMIT;
     this.currentLimit = this.baseLimit;
 
@@ -187,8 +187,9 @@ export class InferCore {
    * Manually selects a suggestion or a string value.
    * This is typically called when a user clicks a suggestion in the UI.
    * @param item The suggestion object or string to select.
+   * @returns boolean True if the selection is a final address.
    */
-  public selectItem(item: InferResult | string): void {
+  public selectItem(item: InferResult | string): boolean {
     this.debouncedFetch.cancel();
     if (this.abortController) {
       this.abortController.abort();
@@ -219,11 +220,12 @@ export class InferCore {
       }
 
       this.finishSelection(finalQuery, valueObj as AddressValue);
-      return;
+      return true;
     }
 
     const subtitle = typeof item !== 'string' ? item.subtitle : null;
     this.processSelection(logicValue, subtitle);
+    return false;
   }
 
   private shouldAutoInsertComma(currentVal: string): boolean {
@@ -249,9 +251,6 @@ export class InferCore {
       hasMore: false,
     });
     this.onSelect(value || label);
-    setTimeout(() => {
-      this.isSelecting = false;
-    }, 0);
   }
 
   private processSelection(text: string, subtitle?: string | null): void {
@@ -309,15 +308,24 @@ export class InferCore {
 
     const currentSignal = this.abortController?.signal;
 
-    const url = new URL(`${this.apiUrl}/infer/${this.country.toLowerCase()}`);
-    const params = {
-      authKey: this.authKey,
+    const baseUrl = this.explicitApiUrl
+      ? this.explicitApiUrl
+      : `${DEFAULTS.API_URL}/infer/${this.country.toLowerCase()}`;
+
+    const params = new URLSearchParams({
+      country: this.country.toLowerCase(),
       query: text,
       limit: this.currentLimit.toString(),
-    };
-    url.search = new URLSearchParams(params).toString();
+    });
 
-    this.fetcher(url.toString(), { signal: currentSignal })
+    if (this.authKey) {
+      params.set('authKey', this.authKey);
+    }
+
+    const separator = baseUrl.includes('?') ? '&' : '?';
+    const finalUrl = `${baseUrl}${separator}${params.toString()}`;
+
+    this.fetcher(finalUrl, { signal: currentSignal })
       .then((res) => {
         if (!res.ok) {
           if (attempt < this.maxRetries && (res.status >= 500 || res.status === 429)) {
@@ -386,9 +394,16 @@ export class InferCore {
       newState.cities = [];
       newState.streets = [];
 
-      if (data.stage === 'final' && uniqueSuggestions.length === 1) {
+      const firstItem = uniqueSuggestions[0];
+      const hasFullValue =
+        firstItem &&
+        typeof firstItem.value === 'object' &&
+        firstItem.value !== null &&
+        Object.keys(firstItem.value).length > 0;
+
+      if ((data.stage === 'final' || hasFullValue) && uniqueSuggestions.length === 1) {
         autoSelect = true;
-        autoSelectItem = uniqueSuggestions[0];
+        autoSelectItem = firstItem;
       }
     }
 
@@ -401,6 +416,7 @@ export class InferCore {
       newState.streets = [];
       newState.isValid = true;
       newState.hasMore = false;
+      this.isSelecting = true;
       this.updateState(newState);
 
       const val =
@@ -415,10 +431,6 @@ export class InferCore {
     this.updateState({ query: nextQuery, suggestions: [], cities: [], streets: [] });
     this.updateState({ isLoading: true, isValid: false, hasMore: false });
     this.debouncedFetch(nextQuery);
-
-    setTimeout(() => {
-      this.isSelecting = false;
-    }, 0);
   }
 
   private replaceLastSegment(fullText: string, newSegment: string): string {

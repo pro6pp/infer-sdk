@@ -59,10 +59,11 @@ describe('Infer JS', () => {
     expect(mockFetcher).toHaveBeenCalledTimes(1);
   });
 
-  it('should fill input when a suggestion is clicked', async () => {
+  it('should keep dropdown open and append comma for partial selections', async () => {
     mockFetcher.mockResolvedValue({
       ok: true,
       json: async () => ({
+        stage: 'city',
         suggestions: [{ label: 'Utrecht' }],
       }),
     });
@@ -78,13 +79,8 @@ describe('Infer JS', () => {
 
     expect(input.value).toBe('Utrecht, ');
 
-    // check dropdown visibility
-    await waitFor(() => {
-      const dropdown = container.querySelector('.pro6pp-dropdown') as HTMLElement;
-      if (dropdown) {
-        expect(dropdown.style.display).toBe('none');
-      }
-    });
+    const dropdown = container.querySelector('.pro6pp-dropdown') as HTMLElement;
+    expect(dropdown.style.display).toBe('flex');
   });
 
   it('should handle keyboard navigation (Arrow Down)', async () => {

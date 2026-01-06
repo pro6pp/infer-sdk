@@ -1,4 +1,11 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import {
   InferCore,
   InferConfig,
@@ -15,18 +22,38 @@ import {
  */
 export function useInfer(config: InferConfig) {
   const [state, setState] = useState<InferState>(INITIAL_STATE);
+  const callbacksRef = useRef({
+    onStateChange: config.onStateChange,
+    onSelect: config.onSelect,
+  });
+
+  useEffect(() => {
+    callbacksRef.current = {
+      onStateChange: config.onStateChange,
+      onSelect: config.onSelect,
+    };
+  }, [config.onStateChange, config.onSelect]);
 
   const core = useMemo(() => {
     return new InferCore({
       ...config,
       onStateChange: (newState) => {
         setState({ ...newState });
-        if (config.onStateChange) {
-          config.onStateChange(newState);
-        }
+        callbacksRef.current.onStateChange?.(newState);
+      },
+      onSelect: (selection) => {
+        callbacksRef.current.onSelect?.(selection);
       },
     });
-  }, [config.country, config.authKey, config.limit, config.debounceMs, config.maxRetries]);
+  }, [
+    config.country,
+    config.authKey,
+    config.apiUrl,
+    config.fetcher,
+    config.limit,
+    config.debounceMs,
+    config.maxRetries,
+  ]);
 
   return {
     /** The current UI state (suggestions, loading status, query, etc.). */
@@ -87,192 +114,202 @@ export interface Pro6PPInferProps extends InferConfig {
  * A styled React component for Pro6PP Infer API.
  * Includes styling, keyboard navigation, and loading states.
  */
-export const Pro6PPInfer: React.FC<Pro6PPInferProps> = ({
-  className,
-  style,
-  inputProps,
-  placeholder = 'Start typing an address...',
-  renderItem,
-  disableDefaultStyles = false,
-  noResultsText = 'No results found',
-  loadMoreText = 'Show more results...',
-  renderNoResults,
-  showClearButton = true,
-  ...config
-}) => {
-  const { state, selectItem, loadMore, inputProps: coreInputProps, core } = useInfer(config);
-  const [isOpen, setIsOpen] = useState(false);
-  const inputRef = useRef<HTMLInputElement>(null);
-  const wrapperRef = useRef<HTMLDivElement>(null);
+export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
+  (
+    {
+      className,
+      style,
+      inputProps,
+      placeholder = 'Start typing an address...',
+      renderItem,
+      disableDefaultStyles = false,
+      noResultsText = 'No results found',
+      loadMoreText = 'Show more results...',
+      renderNoResults,
+      showClearButton = true,
+      ...config
+    },
+    ref,
+  ) => {
+    const { state, selectItem, loadMore, inputProps: coreInputProps, core } = useInfer(config);
+    const [isOpen, setIsOpen] = useState(false);
+    const internalInputRef = useRef<HTMLInputElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (disableDefaultStyles) return;
-    const styleId = 'pro6pp-styles';
-    if (!document.getElementById(styleId)) {
-      const styleEl = document.createElement('style');
-      styleEl.id = styleId;
-      styleEl.textContent = DEFAULT_STYLES;
-      document.head.appendChild(styleEl);
-    }
-  }, [disableDefaultStyles]);
+    useImperativeHandle(ref, () => internalInputRef.current!);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+    useEffect(() => {
+      if (disableDefaultStyles) return;
+      const styleId = 'pro6pp-styles';
+      if (!document.getElementById(styleId)) {
+        const styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        styleEl.textContent = DEFAULT_STYLES;
+        document.head.appendChild(styleEl);
+      }
+    }, [disableDefaultStyles]);
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    const items = useMemo(() => {
+      return [
+        ...state.cities.map((c) => ({ ...c, type: 'city' as const })),
+        ...state.streets.map((s) => ({ ...s, type: 'street' as const })),
+        ...state.suggestions.map((s) => ({ ...s, type: 'suggestion' as const })),
+      ];
+    }, [state.cities, state.streets, state.suggestions]);
+
+    const handleSelect = (item: InferResult) => {
+      const isFinal = selectItem(item);
+
+      if (!isFinal) {
+        setTimeout(() => internalInputRef.current?.focus(), 0);
+      } else {
         setIsOpen(false);
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    const handleClear = () => {
+      core.handleInput('');
+      internalInputRef.current?.focus();
+    };
 
-  const items = useMemo(() => {
-    return [
-      ...state.cities.map((c) => ({ ...c, type: 'city' as const })),
-      ...state.streets.map((s) => ({ ...s, type: 'street' as const })),
-      ...state.suggestions.map((s) => ({ ...s, type: 'suggestion' as const })),
-    ];
-  }, [state.cities, state.streets, state.suggestions]);
+    const hasResults = items.length > 0;
+    const showNoResults =
+      !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
 
-  const handleSelect = (item: InferResult) => {
-    selectItem(item);
-    setIsOpen(false);
-    if (!state.isValid && inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
+    const showDropdown = isOpen && (hasResults || state.isLoading || showNoResults);
 
-  const handleClear = () => {
-    core.handleInput('');
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  };
-
-  const hasResults = items.length > 0;
-  const showNoResults =
-    !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
-
-  const showDropdown = isOpen && (hasResults || showNoResults);
-
-  return (
-    <div ref={wrapperRef} className={`pro6pp-wrapper ${className || ''}`} style={style}>
-      <div style={{ position: 'relative' }}>
-        <input
-          ref={inputRef}
-          type="text"
-          className="pro6pp-input"
-          placeholder={placeholder}
-          autoComplete="off"
-          {...inputProps}
-          {...coreInputProps}
-          onFocus={(e) => {
-            setIsOpen(true);
-            inputProps?.onFocus?.(e);
-          }}
-        />
-        <div className="pro6pp-input-addons">
-          {state.isLoading && <div className="pro6pp-loader" />}
-          {showClearButton && state.query.length > 0 && (
-            <button
-              type="button"
-              className="pro6pp-clear-button"
-              onClick={handleClear}
-              aria-label="Clear input"
-            >
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+    return (
+      <div ref={wrapperRef} className={`pro6pp-wrapper ${className || ''}`} style={style}>
+        <div style={{ position: 'relative' }}>
+          <input
+            ref={internalInputRef}
+            type="text"
+            className="pro6pp-input"
+            placeholder={placeholder}
+            autoComplete="off"
+            {...inputProps}
+            {...coreInputProps}
+            onFocus={(e) => {
+              setIsOpen(true);
+              inputProps?.onFocus?.(e);
+            }}
+          />
+          <div className="pro6pp-input-addons">
+            {state.isLoading && <div className="pro6pp-loader" />}
+            {showClearButton && state.query.length > 0 && (
+              <button
+                type="button"
+                className="pro6pp-clear-button"
+                onClick={handleClear}
+                aria-label="Clear input"
               >
-                <line x1="18" y1="6" x2="6" y2="18"></line>
-                <line x1="6" y1="6" x2="18" y2="18"></line>
-              </svg>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {showDropdown && (
-        <div
-          className="pro6pp-dropdown"
-          onWheel={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-        >
-          <ul className="pro6pp-list" role="listbox">
-            {hasResults ? (
-              items.map((item, index) => {
-                const isActive = index === state.selectedSuggestionIndex;
-                const secondaryText = item.subtitle || (item.count !== undefined ? item.count : '');
-                const showChevron = item.value === undefined || item.value === null;
-
-                return (
-                  <li
-                    key={`${item.label}-${index}`}
-                    role="option"
-                    aria-selected={isActive}
-                    className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
-                    onMouseDown={(e) => e.preventDefault()}
-                    onClick={() => handleSelect(item)}
-                  >
-                    {renderItem ? (
-                      renderItem(item, isActive)
-                    ) : (
-                      <>
-                        <span className="pro6pp-item__label">{item.label}</span>
-                        {secondaryText && (
-                          <span className="pro6pp-item__subtitle">, {secondaryText}</span>
-                        )}
-                        {showChevron && (
-                          <div className="pro6pp-item__chevron">
-                            <svg
-                              width="16"
-                              height="16"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                            >
-                              <polyline points="9 18 15 12 9 6"></polyline>
-                            </svg>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </li>
-                );
-              })
-            ) : (
-              <li className="pro6pp-no-results">
-                {renderNoResults ? renderNoResults(state) : noResultsText}
-              </li>
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
             )}
-          </ul>
-          {state.hasMore && (
-            <button
-              type="button"
-              className="pro6pp-load-more"
-              onClick={(e) => {
-                e.preventDefault();
-                loadMore();
-              }}
-            >
-              {loadMoreText}
-            </button>
-          )}
+          </div>
         </div>
-      )}
-    </div>
-  );
-};
+
+        {showDropdown && (
+          <div
+            className="pro6pp-dropdown"
+            onWheel={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <ul className="pro6pp-list" role="listbox">
+              {hasResults ? (
+                items.map((item, index) => {
+                  const isActive = index === state.selectedSuggestionIndex;
+                  const secondaryText =
+                    item.subtitle || (item.count !== undefined ? item.count : '');
+                  const showChevron = item.value === undefined || item.value === null;
+
+                  return (
+                    <li
+                      key={`${item.label}-${index}`}
+                      role="option"
+                      aria-selected={isActive}
+                      className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
+                      onMouseDown={(e) => e.preventDefault()}
+                      onClick={() => handleSelect(item)}
+                    >
+                      {renderItem ? (
+                        renderItem(item, isActive)
+                      ) : (
+                        <>
+                          <span className="pro6pp-item__label">{item.label}</span>
+                          {secondaryText && (
+                            <span className="pro6pp-item__subtitle">, {secondaryText}</span>
+                          )}
+                          {showChevron && (
+                            <div className="pro6pp-item__chevron">
+                              <svg
+                                width="16"
+                                height="16"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                strokeWidth="2"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                              >
+                                <polyline points="9 18 15 12 9 6"></polyline>
+                              </svg>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </li>
+                  );
+                })
+              ) : state.isLoading ? (
+                <li className="pro6pp-no-results">Loading suggestions...</li>
+              ) : (
+                <li className="pro6pp-no-results">
+                  {renderNoResults ? renderNoResults(state) : noResultsText}
+                </li>
+              )}
+            </ul>
+            {state.hasMore && (
+              <button
+                type="button"
+                className="pro6pp-load-more"
+                onClick={(e) => {
+                  e.preventDefault();
+                  loadMore();
+                }}
+              >
+                {loadMoreText}
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  },
+);
 
 export type {
   CountryCode,
