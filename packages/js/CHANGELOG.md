@@ -1,5 +1,11 @@
 # @pro6pp/infer-js
 
+## 0.0.2-beta.9
+
+### Patch Changes
+
+- Fix tsup file name
+
 ## 0.0.2-beta.8
 
 ### Patch Changes
