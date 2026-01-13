@@ -212,10 +212,9 @@ export class InferCore {
       let finalQuery = label;
 
       if (valueObj && Object.keys(valueObj).length > 0) {
-        const { street, street_number, house_number, city } = valueObj;
-        const number = street_number || house_number;
-        if (street && number && city) {
-          finalQuery = `${street} ${number}, ${city}`;
+        const { street, house_number, city } = valueObj;
+        if (street && house_number && city) {
+          finalQuery = `${street} ${house_number}, ${city}`;
         }
       }
 

@@ -36,14 +36,10 @@ export interface AddressValue {
   street: string;
   /** The name of the city/locality. */
   city: string;
-  /** The house number (formatted). */
-  street_number?: string | number;
-  /** The house number (numeric part). */
+  /** The house number. */
   house_number?: string | number;
   /** The postal code. */
   postcode?: string;
-  /** The full postal code including letters (country-specific). */
-  postcode_full?: string;
   /** The house number addition or suffix. */
   addition?: string;
   /** Allow for extra fields if API expands. */
