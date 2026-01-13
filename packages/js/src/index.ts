@@ -153,7 +153,12 @@ export class InferJS {
 
     this.core = new InferCore({
       ...config,
-      onStateChange: (state) => this.render(state),
+      onStateChange: (state) => {
+        this.render(state);
+        if (config.onStateChange) {
+          config.onStateChange(state);
+        }
+      },
       onSelect: (selection) => {
         if (typeof selection === 'string') {
           this.input.value = selection;
