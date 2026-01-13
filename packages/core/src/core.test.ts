@@ -184,7 +184,7 @@ describe('InferCore', () => {
       const address: AddressValue = {
         street: 'Dam',
         city: 'Amsterdam',
-        house_number: 1,
+        street_number: 1,
         postcode: '1012JS',
       };
 
@@ -233,7 +233,7 @@ describe('InferCore', () => {
   describe('Keyboard Interaction', () => {
     it('should auto-insert comma on Space if input is numeric (1-3 digits)', () => {
       const input = document.createElement('input');
-      input.value = '50'; // house number
+      input.value = '50'; // street number
 
       const event = {
         target: input,
@@ -263,8 +263,8 @@ describe('InferCore', () => {
       expect(core.state.query).toBe('');
     });
 
-    it('should auto-insert comma in house_number stage', () => {
-      Object.assign(core.state, { stage: 'house_number', query: 'Eindhoven, Klokgebouw, 50' });
+    it('should auto-insert comma in street_number stage', () => {
+      Object.assign(core.state, { stage: 'street_number', query: 'Eindhoven, Klokgebouw, 50' });
 
       const input = document.createElement('input');
       input.value = 'Eindhoven, Klokgebouw, 50';
@@ -385,9 +385,9 @@ describe('InferCore', () => {
       expect(onSelect).toHaveBeenCalledWith('Postbus 123');
     });
 
-    it('should NOT append comma when selecting item in "house_number" stage', () => {
+    it('should NOT append comma when selecting item in "street_number" stage', () => {
       Object.assign(core.state, {
-        stage: 'house_number',
+        stage: 'street_number',
         query: 'Klokgebouw, 5',
       });
 

@@ -128,7 +128,7 @@ export class InferCore {
    * Supports:
    * - `ArrowUp`/`ArrowDown`: Navigate through the suggestion list.
    * - `Enter`: Select the currently highlighted suggestion.
-   * - `Space`: Automatically inserts a comma if a numeric house number is detected.
+   * - `Space`: Automatically inserts a comma if a numeric street number is detected.
    * @param event The keyboard event from the input element.
    */
   public handleKeyDown(
@@ -212,9 +212,9 @@ export class InferCore {
       let finalQuery = label;
 
       if (valueObj && Object.keys(valueObj).length > 0) {
-        const { street, house_number, city } = valueObj;
-        if (street && house_number && city) {
-          finalQuery = `${street} ${house_number}, ${city}`;
+        const { street, street_number, city } = valueObj;
+        if (street && street_number && city) {
+          finalQuery = `${street} ${street_number}, ${city}`;
         }
       }
 
@@ -232,7 +232,7 @@ export class InferCore {
       !currentVal.includes(',') && PATTERNS.DIGITS_1_3.test(currentVal.trim());
     if (isStartOfSegmentAndNumeric) return true;
 
-    if (this.state.stage === 'house_number') {
+    if (this.state.stage === 'street_number') {
       const currentFragment = this.getCurrentFragment(currentVal);
       return PATTERNS.DIGITS_1_3.test(currentFragment);
     }
@@ -277,13 +277,13 @@ export class InferCore {
 
     const hasComma = query.includes(',');
     const isFirstSegment =
-      !hasComma && (stage === 'city' || stage === 'street' || stage === 'house_number_first');
+      !hasComma && (stage === 'city' || stage === 'street' || stage === 'street_number_first');
 
     if (isFirstSegment) {
       nextQuery = `${text}, `;
     } else {
       nextQuery = this.replaceLastSegment(query, text);
-      if (stage !== 'house_number') {
+      if (stage !== 'street_number') {
         nextQuery += ', ';
       }
     }

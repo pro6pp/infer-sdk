@@ -10,9 +10,9 @@ export type CountryCode = 'NL' | 'DE';
  * - `street`: User is selecting a street.
  * - `city`: User is selecting a city.
  * - `postcode`: User is entering a postcode.
- * - `house_number`: User is entering a house number.
- * - `house_number_first`: Specialized mode where number is entered before street.
- * - `addition`: Selecting a house number addition (e.g., 'A', 'III').
+ * - `street_number`: User is entering a street number.
+ * - `street_number_first`: Specialized mode where number is entered before street.
+ * - `addition`: Selecting a street number addition (e.g., 'A', 'III').
  * - `direct`: Direct address hit (often via postcode).
  * - `final`: A complete, valid address has been identified.
  */
@@ -22,8 +22,8 @@ export type Stage =
   | 'street'
   | 'city'
   | 'postcode'
-  | 'house_number'
-  | 'house_number_first'
+  | 'street_number'
+  | 'street_number_first'
   | 'addition'
   | 'direct'
   | 'final';
@@ -36,11 +36,11 @@ export interface AddressValue {
   street: string;
   /** The name of the city/locality. */
   city: string;
-  /** The house number. */
-  house_number?: string | number;
+  /** The street number. */
+  street_number?: string | number;
   /** The postal code. */
   postcode?: string;
-  /** The house number addition or suffix. */
+  /** The street number addition or suffix. */
   addition?: string;
   /** Allow for extra fields if API expands. */
   [key: string]: unknown;
