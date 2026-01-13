@@ -154,3 +154,11 @@ export interface InferConfig {
    */
   onSelect?: (selection: AddressValue | string | null) => void;
 }
+
+/**
+ * Represents a segment of text that should be highlighted or left plain.
+ */
+export interface HighlightSegment {
+  text: string;
+  match: boolean;
+}
