@@ -7,13 +7,31 @@ Use this package if you are building a custom integration for a framework, or if
 
 ## Installation
 
+### Package Manager
+
 ```bash
 npm install @pro6pp/infer-core
 ```
 
+### CDN
+
+You can also load the Core SDK directly in the browser via a CDN:
+
+```html
+<script src="https://unpkg.com/@pro6pp/infer-core"></script>
+```
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/@pro6pp/infer-core"></script>
+```
+
+When loaded via a script tag, the library is available through the global `Pro6PPCore` object.
+
 ## Usage
 
 The core logic is exposed via the `InferCore` class. It manages the API requests, state and parses input.
+
+### Using ES Modules
 
 ```typescript
 import { InferCore } from '@pro6pp/infer-core';
@@ -29,7 +47,23 @@ const core = new InferCore({
     console.log('User selected:', result);
   },
 });
+```
 
+### Using via script tag (global)
+
+```typescript
+const core = new Pro6PPCore.InferCore({
+  authKey: 'YOUR_AUTH_KEY',
+  country: 'NL',
+  onSelect: (result) => console.log(result),
+});
+```
+
+### Event handling
+
+Once initialized, pass your input and keyboard events to the core instance to manage state.
+
+```typescript
 const input = document.querySelector('#my-input');
 
 // pass input events to the core

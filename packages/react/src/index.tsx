@@ -13,7 +13,27 @@ import {
   InferResult,
   INITIAL_STATE,
   DEFAULT_STYLES,
+  getHighlightSegments,
 } from '@pro6pp/infer-core';
+
+/** Highlight fuzzy matches. */
+const HighlightedText = ({ text, query }: { text: string; query: string }) => {
+  const segments = useMemo(() => getHighlightSegments(text, query), [text, query]);
+
+  return (
+    <span className="pro6pp-item__label">
+      {segments.map((seg, i) =>
+        seg.match ? (
+          <strong key={i} className="pro6pp-item__label--match">
+            {seg.text}
+          </strong>
+        ) : (
+          seg.text
+        ),
+      )}
+    </span>
+  );
+};
 
 /**
  * A headless React hook that provides the logic for address search using the Infer API.
@@ -264,7 +284,7 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
                         renderItem(item, isActive)
                       ) : (
                         <>
-                          <span className="pro6pp-item__label">{item.label}</span>
+                          <HighlightedText text={item.label} query={state.query} />
                           {secondaryText && (
                             <span className="pro6pp-item__subtitle">, {secondaryText}</span>
                           )}

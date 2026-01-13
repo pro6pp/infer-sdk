@@ -81,18 +81,17 @@ export const DEFAULT_STYLES = `
     top: 100%;
     left: 0;
     right: 0;
-    z-index: 9999;
-    margin-top: 6px;
-    background: white;
-    border: 1px solid #e0e0e0;
-    border-radius: 8px;
+    margin-top: 4px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    max-height: 40vh;
-    min-height: 50px;
+    z-index: 9999;
+    padding: 0;
+    max-height: 260px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    -webkit-overflow-scrolling: touch;
   }
 
   @media (max-height: 500px) {
@@ -102,24 +101,22 @@ export const DEFAULT_STYLES = `
   }
 
   .pro6pp-list {
-    list-style: none !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    flex-grow: 1;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    width: 100%;
   }
 
   .pro6pp-item {
-    padding: 12px 16px;
+    padding: 12px 14px;
     cursor: pointer;
     display: flex;
-    flex-direction: row;
-    align-items: flex-start;
-    color: #111827;
-    font-size: 15px;
-    line-height: 1.4;
+    align-items: center;
+    font-size: 14px;
+    color: #374151;
     border-bottom: 1px solid #f3f4f6;
-    word-break: break-word;
-    white-space: normal;
+    transition: background-color 0.1s;
+    flex-shrink: 0;
   }
 
   .pro6pp-item:last-child {
@@ -146,12 +143,10 @@ export const DEFAULT_STYLES = `
     flex-grow: 1;
   }
   .pro6pp-item__chevron {
-    flex-shrink: 0;
-    margin-left: 8px;
+    color: #d1d5db;
     display: flex;
     align-items: center;
-    align-self: center;
-    color: #9ca3af;
+    margin-left: auto;
   }
 
   .pro6pp-no-results {

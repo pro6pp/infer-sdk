@@ -2,6 +2,10 @@ import { describe, it, expect, vi, beforeEach, afterEach, type Mock } from 'vite
 import { fireEvent, waitFor, getByText } from '@testing-library/dom';
 import { InferJS } from './index';
 
+// find elements where the text might be split across multiple children (like <strong> tags)
+const matchText = (text: string) => (_content: string, element: Element | null) =>
+  element?.textContent === text;
+
 describe('Infer JS', () => {
   let mockFetcher: Mock;
   let container: HTMLElement;
@@ -55,7 +59,7 @@ describe('Infer JS', () => {
       expect(items.length).toBe(2);
     });
 
-    expect(getByText(container, 'Amsterdam')).toBeDefined();
+    expect(getByText(container, matchText('Amsterdam'))).toBeDefined();
     expect(mockFetcher).toHaveBeenCalledTimes(1);
   });
 
@@ -73,14 +77,14 @@ describe('Infer JS', () => {
     fireEvent.input(input, { target: { value: 'Utr' } });
     vi.advanceTimersByTime(150);
 
-    const item = await waitFor(() => getByText(container, 'Utrecht'));
+    const item = await waitFor(() => getByText(container, matchText('Utrecht')));
 
     fireEvent.click(item);
 
     expect(input.value).toBe('Utrecht, ');
 
     const dropdown = container.querySelector('.pro6pp-dropdown') as HTMLElement;
-    expect(dropdown.style.display).toBe('flex');
+    expect(dropdown.style.display).toBe('block');
   });
 
   it('should handle keyboard navigation (Arrow Down)', async () => {
@@ -96,7 +100,7 @@ describe('Infer JS', () => {
     fireEvent.input(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(150);
 
-    await waitFor(() => getByText(container, 'A'));
+    await waitFor(() => getByText(container, matchText('A')));
 
     fireEvent.keyDown(input, { key: 'ArrowDown' });
 

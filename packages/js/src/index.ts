@@ -1,4 +1,10 @@
-import { InferCore, InferConfig, InferState, DEFAULT_STYLES } from '@pro6pp/infer-core';
+import {
+  InferCore,
+  InferConfig,
+  InferState,
+  DEFAULT_STYLES,
+  getHighlightSegments,
+} from '@pro6pp/infer-core';
 
 /**
  * Configuration options for the JS Infer SDK.
@@ -231,7 +237,7 @@ export class InferJS {
       return;
     }
 
-    this.dropdown.style.display = 'flex';
+    this.dropdown.style.display = 'block';
     this.loadMoreButton.style.display = state.hasMore ? 'block' : 'none';
 
     if (state.isLoading && !hasResults) {
@@ -265,7 +271,19 @@ export class InferJS {
 
       const labelSpan = document.createElement('span');
       labelSpan.className = 'pro6pp-item__label';
-      labelSpan.textContent = item.label;
+
+      const segments = getHighlightSegments(item.label, state.query);
+      segments.forEach(({ text, match }) => {
+        if (match) {
+          const strong = document.createElement('strong');
+          strong.className = 'pro6pp-item__label--match';
+          strong.textContent = text;
+          labelSpan.appendChild(strong);
+        } else {
+          labelSpan.appendChild(document.createTextNode(text));
+        }
+      });
+
       li.appendChild(labelSpan);
 
       const countVal = item.count !== undefined && item.count !== null ? item.count : '';
