@@ -54,8 +54,6 @@ export class InferCore {
   private abortController: AbortController | null = null;
   private debouncedFetch: DebouncedFunction<(val: string) => void>;
 
-  private isSelecting: boolean = false;
-
   /**
    * Initializes a new instance of the Infer engine.
    * @param config The configuration object including API keys and callbacks.
@@ -89,11 +87,6 @@ export class InferCore {
    * @param value The raw string from the input field.
    */
   public handleInput(value: string): void {
-    if (this.isSelecting) {
-      this.isSelecting = false;
-      return;
-    }
-
     this.currentLimit = this.baseLimit;
 
     const isEditingFinal = this.state.stage === 'final' && value !== this.state.query;
@@ -205,8 +198,6 @@ export class InferCore {
       typeof item !== 'string' && typeof item.value === 'object' ? item.value : undefined;
 
     const isFullResult = !!valueObj && Object.keys(valueObj).length > 0;
-
-    this.isSelecting = true;
 
     if (this.state.stage === 'final' || isFullResult) {
       let finalQuery = label;
@@ -365,9 +356,6 @@ export class InferCore {
       isLoading: false,
     };
 
-    let autoSelect = false;
-    let autoSelectItem: InferResult | null = null;
-
     const rawSuggestions = data.suggestions || [];
     const uniqueSuggestions: InferResult[] = [];
     const seen = new Set<string>();
@@ -392,38 +380,10 @@ export class InferCore {
       newState.suggestions = uniqueSuggestions;
       newState.cities = [];
       newState.streets = [];
-
-      const firstItem = uniqueSuggestions[0];
-      const hasFullValue =
-        firstItem &&
-        typeof firstItem.value === 'object' &&
-        firstItem.value !== null &&
-        Object.keys(firstItem.value).length > 0;
-
-      if ((data.stage === 'final' || hasFullValue) && uniqueSuggestions.length === 1) {
-        autoSelect = true;
-        autoSelectItem = firstItem;
-      }
     }
 
     newState.isValid = data.stage === 'final';
-
-    if (autoSelect && autoSelectItem) {
-      newState.query = autoSelectItem.label;
-      newState.suggestions = [];
-      newState.cities = [];
-      newState.streets = [];
-      newState.isValid = true;
-      newState.hasMore = false;
-      this.isSelecting = true;
-      this.updateState(newState);
-
-      const val =
-        typeof autoSelectItem.value === 'object' ? autoSelectItem.value : autoSelectItem.label;
-      this.onSelect(val);
-    } else {
-      this.updateState(newState);
-    }
+    this.updateState(newState);
   }
 
   private updateQueryAndFetch(nextQuery: string): void {
