@@ -203,9 +203,10 @@ export class InferCore {
       let finalQuery = label;
 
       if (valueObj && Object.keys(valueObj).length > 0) {
-        const { street, street_number, city } = valueObj;
+        const { street, street_number, city, addition } = valueObj;
         if (street && street_number && city) {
-          finalQuery = `${street} ${street_number}, ${city}`;
+          const suffix = addition ? ` ${addition}` : '';
+          finalQuery = `${street} ${street_number}${suffix}, ${city}`;
         }
       }
 
@@ -255,7 +256,13 @@ export class InferCore {
         nextQuery = `${subtitle}, ${text}, `;
       } else {
         const prefix = this.getQueryPrefix(query);
-        nextQuery = prefix ? `${prefix} ${text}, ${subtitle}, ` : `${text}, ${subtitle}, `;
+        const shouldAddSubtitle = !prefix || !prefix.includes(subtitle!);
+
+        if (shouldAddSubtitle) {
+          nextQuery = prefix ? `${prefix} ${text}, ${subtitle}, ` : `${text}, ${subtitle}, `;
+        } else {
+          nextQuery = prefix ? `${prefix} ${text}, ` : `${text}, `;
+        }
       }
       this.updateQueryAndFetch(nextQuery);
       return;
@@ -384,6 +391,10 @@ export class InferCore {
 
     newState.isValid = data.stage === 'final';
     this.updateState(newState);
+
+    if (newState.isValid && uniqueSuggestions.length === 1) {
+      this.selectItem(uniqueSuggestions[0]);
+    }
   }
 
   private updateQueryAndFetch(nextQuery: string): void {

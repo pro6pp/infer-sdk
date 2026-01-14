@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Pro6PP JS SDK Local Test</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        padding: 2rem;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+      .input-group {
+        margin-bottom: 1rem;
+      }
+      label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: bold;
+      }
+      /* Styles for the debug badge */
+      .status-badge {
+        display: inline-block;
+        margin-left: 10px;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.8em;
+        color: white;
+        background-color: #d32f2f; /* Red for invalid */
+        vertical-align: middle;
+      }
+      .status-badge.valid {
+        background-color: #388e3c; /* Green for valid */
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Local SDK Test</h1>
+
+    <div class="input-group">
+      <label for="address-input">
+        Address Search
+        <span id="debug-state" class="status-badge">INVALID</span>
+      </label>
+      <input
+        id="address-input"
+        type="text"
+        placeholder="Start typing (e.g. Amsterdam)"
+        autocomplete="off"
+      />
+    </div>
+
+    <div
+      id="result-output"
+      style="
+        margin-top: 20px;
+        padding: 10px;
+        background: #f0f0f0;
+        border-radius: 4px;
+        display: none;
+        white-space: pre-wrap;
+      "
+    ></div>
+
+    <script src="./dist/index.global.js"></script>
+
+    <script>
+      const output = document.getElementById('result-output');
+      const debugBadge = document.getElementById('debug-state');
+
+      Pro6PP.attach('#address-input', {
+        authKey: 'RpeUYR5XsQSGY6Lr',
+        country: 'NL',
+        apiUrl: 'http://localhost:8081/v2/infer/nl',
+
+        // 1. Hook into state changes to update the debug badge
+        onStateChange: (state) => {
+          if (state.isValid) {
+            debugBadge.textContent = 'VALID';
+            debugBadge.className = 'status-badge valid';
+          } else {
+            debugBadge.textContent = 'INVALID';
+            debugBadge.className = 'status-badge';
+          }
+        },
+
+        onSelect: (result) => {
+          console.log('Selection:', result);
+          output.style.display = 'block';
+          output.textContent = JSON.stringify(result, null, 2);
+        },
+      });
+    </script>
+  </body>
+</html>
