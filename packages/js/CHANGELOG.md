@@ -1,5 +1,13 @@
 # @pro6pp/infer-js
 
+## 0.0.2-beta.11
+
+### Patch Changes
+
+- Improve address selection logic and formatting.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.10
+
 ## 0.0.2-beta.10
 
 ### Patch Changes

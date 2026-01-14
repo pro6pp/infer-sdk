@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.10
+
+### Patch Changes
+
+- Improve address selection logic and formatting.
+
 ## 0.0.2-beta.9
 
 ### Patch Changes
