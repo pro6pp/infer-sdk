@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.11
+
+### Patch Changes
+
+- Add fuzzy matching, improve consistency in API calls and responsiveness on mobile.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.9
+
 ## 0.0.2-beta.10
 
 ### Patch Changes
