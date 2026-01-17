@@ -42,8 +42,8 @@ export const DEFAULT_STYLES = `
   .pro6pp-clear-button {
     background: none;
     border: none;
-    width: 40px;
-    height: 40px;
+    width: 32px;
+    height: 32px;
     cursor: pointer;
     color: #a3a3a3;
     display: flex;
