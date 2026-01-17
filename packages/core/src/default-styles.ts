@@ -20,6 +20,12 @@ export const DEFAULT_STYLES = `
     appearance: none;
     transition: border-color 0.2s, box-shadow 0.2s;
   }
+
+  .pro6pp-input::placeholder {
+    font-size: 16px;
+    color: #a3a3a3;
+  }
+
   .pro6pp-input:focus {
     outline: none;
     border-color: #3b82f6;
@@ -88,7 +94,7 @@ export const DEFAULT_STYLES = `
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     z-index: 9999;
     padding: 0;
-    max-height: 260px;
+    max-height: 280px;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
@@ -96,7 +102,7 @@ export const DEFAULT_STYLES = `
 
   @media (max-height: 500px) {
     .pro6pp-dropdown {
-      max-height: 140px;
+      max-height: 180px;
     }
   }
 
@@ -112,7 +118,8 @@ export const DEFAULT_STYLES = `
     cursor: pointer;
     display: flex;
     align-items: center;
-    font-size: 14px;
+    font-size: 15px;
+    line-height: 1.4;
     color: #374151;
     border-bottom: 1px solid #f3f4f6;
     transition: background-color 0.1s;
@@ -135,18 +142,24 @@ export const DEFAULT_STYLES = `
 
   .pro6pp-item__label {
     font-weight: 500;
+    flex-shrink: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .pro6pp-item__subtitle {
+    font-size: 13px;
+    color: #6b7280;
     flex-shrink: 0;
   }
-  .pro6pp-item__subtitle {
-    font-size: 14px;
-    color: #6b7280;
-    flex-grow: 1;
-  }
+
   .pro6pp-item__chevron {
     color: #d1d5db;
     display: flex;
     align-items: center;
     margin-left: auto;
+    padding-left: 8px;
   }
 
   .pro6pp-no-results {
@@ -168,6 +181,24 @@ export const DEFAULT_STYLES = `
     cursor: pointer;
     flex-shrink: 0;
     touch-action: manipulation;
+  }
+
+  @media (max-width: 640px) {
+    .pro6pp-input {
+      font-size: 16px;
+      padding: 10px 12px;
+    }
+    .pro6pp-item {
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+    .pro6pp-item__subtitle {
+      font-size: 12px;
+    }
+    .pro6pp-load-more {
+      padding: 12px;
+      font-size: 13px;
+    }
   }
 
   .pro6pp-load-more:active {
