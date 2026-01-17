@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.11
+
+### Patch Changes
+
+- Improve styling and responsiveness on smaller viewports
+
 ## 0.0.2-beta.10
 
 ### Patch Changes

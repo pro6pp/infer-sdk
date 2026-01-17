@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.13
+
+### Patch Changes
+
+- Improve styling and responsiveness on smaller viewports
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.11
+
 ## 0.0.2-beta.12
 
 ### Patch Changes
