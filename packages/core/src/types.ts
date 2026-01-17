@@ -1,7 +1,7 @@
 /**
  * Supported ISO 3166-1 alpha-2 country codes.
  */
-export type CountryCode = 'NL' | 'DE';
+export type CountryCode = 'NL' | 'DE' | (string & {});
 
 /**
  * The current step in the address inference process.
