@@ -6,17 +6,15 @@
 [![License](https://img.shields.io/npm/l/@pro6pp/infer-react)](https://github.com/pro6pp/infer-sdk/blob/main/LICENSE)
 
 This repository contains the source code for the SDKs of the Pro6PP Infer API.
-For more details, visit the [API Documentation](https://www.pro6pp.com/developer/infer/nl/parameters).
+Explore the Infer API documentation [here](https://www.pro6pp.com/developer/infer/nl/parameters).
 
 ## Packages
 
-Choose the package that fits your environment:
-
-| Package                                     | Description                     | Installation                                                               |
-| :------------------------------------------ | :------------------------------ | :------------------------------------------------------------------------- |
-| **[@pro6pp/infer-js](./packages/js)**       | Drop-in script for vanilla JS.  | `npm i @pro6pp/infer-js` or [CDN Link](https://unpkg.com/@pro6pp/infer-js) |
-| **[@pro6pp/infer-react](./packages/react)** | Hook for React applications.    | `npm i @pro6pp/infer-react`                                                |
-| **[@pro6pp/infer-core](./packages/core)**   | Shared logic and state machine. | `npm i @pro6pp/infer-core`                                                 |
+| Package                                     | Installation                                                               |
+| :------------------------------------------ | :------------------------------------------------------------------------- |
+| **[@pro6pp/infer-js](./packages/js)**       | `npm i @pro6pp/infer-js` or [CDN Link](https://unpkg.com/@pro6pp/infer-js) |
+| **[@pro6pp/infer-react](./packages/react)** | `npm i @pro6pp/infer-react`                                                |
+| **[@pro6pp/infer-core](./packages/core)**   | `npm i @pro6pp/infer-core`                                                 |
 
 ## Development
 
