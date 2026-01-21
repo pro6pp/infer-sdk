@@ -22,6 +22,7 @@ export const INITIAL_STATE: InferState = {
   streets: [],
   suggestions: [],
   isValid: false,
+  value: null,
   isError: false,
   isLoading: false,
   hasMore: false,
@@ -94,6 +95,7 @@ export class InferCore {
     this.updateState({
       query: value,
       isValid: false,
+      value: null,
       isLoading: !!value.trim(),
       selectedSuggestionIndex: -1,
       hasMore: false,
@@ -238,6 +240,7 @@ export class InferCore {
       cities: [],
       streets: [],
       isValid: true,
+      value: value || null,
       stage: 'final',
       hasMore: false,
     });
@@ -398,8 +401,16 @@ export class InferCore {
   }
 
   private updateQueryAndFetch(nextQuery: string): void {
-    this.updateState({ query: nextQuery, suggestions: [], cities: [], streets: [] });
-    this.updateState({ isLoading: true, isValid: false, hasMore: false });
+    this.updateState({
+      query: nextQuery,
+      suggestions: [],
+      cities: [],
+      streets: [],
+      isValid: false,
+      value: null,
+      isLoading: true,
+      hasMore: false,
+    });
     this.debouncedFetch(nextQuery);
   }
 

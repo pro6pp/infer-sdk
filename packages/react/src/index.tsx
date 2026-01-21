@@ -14,6 +14,7 @@ import {
   INITIAL_STATE,
   DEFAULT_STYLES,
   getHighlightSegments,
+  AddressValue,
 } from '@pro6pp/infer-core';
 
 /** Highlight fuzzy matches. */
@@ -36,12 +37,34 @@ const HighlightedText = ({ text, query }: { text: string; query: string }) => {
 };
 
 /**
+ * Extended configuration for the React hook.
+ */
+export interface UseInferConfig extends InferConfig {
+  /**
+   * Initial address value to pre-fill the state with.
+   */
+  initialValue?: AddressValue;
+}
+
+/**
  * A headless React hook that provides the logic for address search using the Infer API.
  * @param config The engine configuration (authKey, country, etc.).
  * @returns An object containing the current state, the core instance, and pre-bound input props.
  */
-export function useInfer(config: InferConfig) {
-  const [state, setState] = useState<InferState>(INITIAL_STATE);
+export function useInfer(config: UseInferConfig) {
+  const [state, setState] = useState<InferState>(() => {
+    if (config.initialValue) {
+      return {
+        ...INITIAL_STATE,
+        value: config.initialValue,
+        query: `${config.initialValue.street} ${config.initialValue.street_number}, ${config.initialValue.city}`,
+        isValid: true,
+        stage: 'final',
+      };
+    }
+    return INITIAL_STATE;
+  });
+
   const callbacksRef = useRef({
     onStateChange: config.onStateChange,
     onSelect: config.onSelect,
@@ -55,7 +78,7 @@ export function useInfer(config: InferConfig) {
   }, [config.onStateChange, config.onSelect]);
 
   const core = useMemo(() => {
-    return new InferCore({
+    const instance = new InferCore({
       ...config,
       onStateChange: (newState) => {
         setState({ ...newState });
@@ -65,6 +88,14 @@ export function useInfer(config: InferConfig) {
         callbacksRef.current.onSelect?.(selection);
       },
     });
+
+    if (config.initialValue) {
+      const address = config.initialValue;
+      const label = `${address.street} ${address.street_number}, ${address.city}`;
+      instance.selectItem({ label, value: address });
+    }
+
+    return instance;
   }, [
     config.country,
     config.authKey,
@@ -73,10 +104,17 @@ export function useInfer(config: InferConfig) {
     config.limit,
     config.debounceMs,
     config.maxRetries,
+    config.initialValue,
   ]);
 
+  const setValue = (address: AddressValue) => {
+    if (!address) return;
+    const label = `${address.street} ${address.street_number}, ${address.city}`;
+    core.selectItem({ label, value: address });
+  };
+
   return {
-    /** The current UI state (suggestions, loading status, query, etc.). */
+    /** The current UI state (suggestions, loading status, query, value, etc.). */
     state,
     /** The raw InferCore instance for manual control. */
     core,
@@ -86,9 +124,11 @@ export function useInfer(config: InferConfig) {
       onChange: (e: React.ChangeEvent<HTMLInputElement>) => core.handleInput(e.target.value),
       onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => core.handleKeyDown(e),
     },
-    /** Function to manually select a specific suggestion. */
+    /** Manually select a specific suggestion. */
     selectItem: (item: InferResult | string) => core.selectItem(item),
-    /** Function to load more results. */
+    /** Programmatically set the address value. */
+    setValue,
+    /** Load more results. */
     loadMore: () => core.loadMore(),
   };
 }
@@ -96,7 +136,7 @@ export function useInfer(config: InferConfig) {
 /**
  * Props for the Pro6PPInfer component.
  */
-export interface Pro6PPInferProps extends InferConfig {
+export interface Pro6PPInferProps extends UseInferConfig {
   /** Optional CSS class for the wrapper div. */
   className?: string;
   /** Optional inline styles for the wrapper div. */

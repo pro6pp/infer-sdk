@@ -78,6 +78,8 @@ export interface InferState {
   suggestions: InferResult[];
   /** Flag indicating if the current selection is a complete, valid address. */
   isValid: boolean;
+  /** The complete address object if valid, otherwise null. */
+  value: AddressValue | null;
   /** Flag indicating if the last API request failed. */
   isError: boolean;
   /** Flag indicating if a network request is currently in progress. */

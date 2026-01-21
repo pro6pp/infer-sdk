@@ -4,6 +4,7 @@ import {
   InferState,
   DEFAULT_STYLES,
   getHighlightSegments,
+  AddressValue,
 } from '@pro6pp/infer-core';
 
 /**
@@ -170,6 +171,24 @@ export class InferJS {
     });
 
     this.bindEvents();
+  }
+
+  /**
+   * Retrieves the current selected address value if available.
+   * @returns The AddressValue object if valid, otherwise null.
+   */
+  public get value(): AddressValue | null {
+    return this.core.state.value || null;
+  }
+
+  /**
+   * Programmatically sets the address value.
+   * @param address The address object to set.
+   */
+  public set value(address: AddressValue) {
+    if (!address) return;
+    const label = `${address.street} ${address.street_number}, ${address.city}`;
+    this.core.selectItem({ label, value: address });
   }
 
   private injectStyles() {
