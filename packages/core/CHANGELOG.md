@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.12
+
+### Patch Changes
+
+- Add `value` to `onStateChange` callback. Also only include `country` search param in API call if a proxy is used.
+
 ## 0.0.2-beta.11
 
 ### Patch Changes

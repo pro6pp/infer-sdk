@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.14
+
+### Patch Changes
+
+- Add `value` to `onStateChange` callback. Also only include `country` search param in API call if a proxy is used.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.12
+
 ## 0.0.2-beta.13
 
 ### Patch Changes
