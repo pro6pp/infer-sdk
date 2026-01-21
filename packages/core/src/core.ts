@@ -313,10 +313,13 @@ export class InferCore {
       : `${DEFAULTS.API_URL}/infer/${this.country.toLowerCase()}`;
 
     const params = new URLSearchParams({
-      country: this.country.toLowerCase(),
       query: text,
       limit: this.currentLimit.toString(),
     });
+
+    if (this.explicitApiUrl) {
+      params.append('country', this.country.toLowerCase());
+    }
 
     if (this.authKey) {
       params.set('authKey', this.authKey);
