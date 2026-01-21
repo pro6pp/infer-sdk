@@ -36,15 +36,13 @@ npm run build
 
 ### Formatting
 
-Prettier is used for consistent code style across all packages.
+Format all packages:
 
 ```bash
 npx prettier --write .
 ```
 
 ### Running Tests
-
-[Vitest](https://vitest.dev/) is used for unit and integration tests.
 
 Run tests for a specific package:
 

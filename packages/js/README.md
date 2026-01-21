@@ -70,7 +70,12 @@ const inputElement = document.getElementById('address-input');
 attach(inputElement, {
   authKey: 'YOUR_AUTH_KEY',
   country: 'NL',
-  onSelect: (result) => {
+  // triggered whenever the internal state changes
+  onStateChange: function (state) {
+    console.log('Current State:', state);
+  },
+  // triggered when the user selects a final address
+  onSelect: function (result) {
     console.log('Selected Address:', result);
   },
 });

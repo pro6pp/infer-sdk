@@ -40,7 +40,7 @@ const core = new InferCore({
   authKey: 'YOUR_AUTH_KEY',
   country: 'NL',
   onStateChange: (state) => {
-    // suggestions, isLoading, isValid, selectedSuggestionIndex, etc.
+    // suggestions, isLoading, isValid, value, selectedSuggestionIndex, etc.
     console.log('Current State:', state);
   },
   onSelect: (result) => {
