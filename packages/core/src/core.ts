@@ -10,6 +10,7 @@ const DEFAULTS = {
 
 const PATTERNS = {
   DIGITS_1_3: /^[0-9]{1,3}$/,
+  STREET_NUMBER_PREFIX: /^(\d+)\s*,\s*$/,
 };
 
 /**
@@ -261,10 +262,25 @@ export class InferCore {
         const prefix = this.getQueryPrefix(query);
         const shouldAddSubtitle = !prefix || !prefix.includes(subtitle!);
 
+        let effectivePrefix = prefix;
+        // If prefix is just a number (e.g. "200,") and subtitle starts with it ("200, 1234AB"),
+        // ignore the prefix to avoid "200, Street, 200, 1234AB".
+        if (prefix && subtitle) {
+          const prefixNumMatch = prefix.match(PATTERNS.STREET_NUMBER_PREFIX);
+          if (prefixNumMatch) {
+            const num = prefixNumMatch[1];
+            if (subtitle.startsWith(num)) {
+              effectivePrefix = '';
+            }
+          }
+        }
+
         if (shouldAddSubtitle) {
-          nextQuery = prefix ? `${prefix} ${text}, ${subtitle}, ` : `${text}, ${subtitle}, `;
+          nextQuery = effectivePrefix
+            ? `${effectivePrefix} ${text}, ${subtitle}, `
+            : `${text}, ${subtitle}, `;
         } else {
-          nextQuery = prefix ? `${prefix} ${text}, ` : `${text}, `;
+          nextQuery = effectivePrefix ? `${effectivePrefix} ${text}, ` : `${text}, `;
         }
       }
       this.updateQueryAndFetch(nextQuery);
