@@ -47,6 +47,11 @@ lint:
   script:
     - npm run lint --workspaces --if-present
 
+format:
+  stage: style
+  script:
+    - npm run format --workspaces --if-present
+
 types:
   stage: style
   script:
