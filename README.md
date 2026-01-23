@@ -39,7 +39,7 @@ npm run build
 Format all packages:
 
 ```bash
-npx prettier --write .
+npm run format
 ```
 
 ### Running Tests
