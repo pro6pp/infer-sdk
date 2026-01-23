@@ -388,7 +388,12 @@ export class InferCore {
     if (data.stage === 'mixed') {
       newState.cities = data.cities || [];
       newState.streets = data.streets || [];
-      newState.suggestions = [];
+
+      if (newState.cities?.length === 0 && newState.streets?.length === 0) {
+        newState.suggestions = uniqueSuggestions;
+      } else {
+        newState.suggestions = [];
+      }
     } else {
       newState.suggestions = uniqueSuggestions;
       newState.cities = [];
