@@ -10,9 +10,20 @@ describe('Infer JS', () => {
   let mockFetcher: Mock;
   let container: HTMLElement;
   let input: HTMLInputElement;
+  let observerCallback: (entries: IntersectionObserverEntry[]) => void;
 
   beforeEach(() => {
     vi.useFakeTimers();
+
+    global.IntersectionObserver = class IntersectionObserver {
+      constructor(cb: any) {
+        observerCallback = cb;
+      }
+      observe = vi.fn();
+      unobserve = vi.fn();
+      disconnect = vi.fn();
+    } as any;
+
     container = document.createElement('div');
     container.innerHTML = `
       <form>
@@ -108,5 +119,33 @@ describe('Infer JS', () => {
       const items = container.querySelectorAll('.pro6pp-item');
       expect(items[0].classList.contains('pro6pp-item--active')).toBe(true);
     });
+  });
+
+  it('should trigger loadMore when scrolling to bottom', async () => {
+    mockFetcher.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        suggestions: [{ label: 'A' }],
+      }),
+    });
+
+    const infer = new InferJS(input, { authKey: 'test', country: 'NL', fetcher: mockFetcher });
+
+    // trigger input
+    fireEvent.input(input, { target: { value: 'test' } });
+    vi.advanceTimersByTime(150);
+
+    await waitFor(() => {
+      expect(container.querySelectorAll('.pro6pp-item').length).toBe(1);
+    });
+
+    // simulate more results
+    Object.assign(infer['core'].state, { hasMore: true, isLoading: false });
+
+    // trigger observer manually
+    observerCallback([{ isIntersecting: true } as IntersectionObserverEntry]);
+
+    // check fetcher was called a 2nd time
+    expect(mockFetcher).toHaveBeenCalledTimes(2);
   });
 });
