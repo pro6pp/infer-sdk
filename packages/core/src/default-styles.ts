@@ -183,6 +183,27 @@ export const DEFAULT_STYLES = `
     touch-action: manipulation;
   }
 
+  .pro6pp-loader-item {
+    padding: 10px 12px;
+    color: #6b7280;
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #f9fafb;
+    border-top: 1px solid #f3f4f6;
+  }
+
+  .pro6pp-mini-spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid #e5e7eb;
+    border-top-color: #6b7280;
+    border-radius: 50%;
+    animation: pro6pp-spin 0.6s linear infinite;
+  }
+
   @media (max-width: 640px) {
     .pro6pp-input {
       font-size: 16px;
