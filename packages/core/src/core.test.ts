@@ -420,4 +420,38 @@ describe('InferCore', () => {
       expect(onSelect).toHaveBeenCalledWith('Dam 1 A');
     });
   });
+
+  describe('Pagination & Infinite Scroll', () => {
+    it('should increase limit and re-fetch when loadMore is called', () => {
+      core.handleInput('Eindhoven');
+      vi.advanceTimersByTime(300);
+
+      expect(mockFetcher).toHaveBeenCalledTimes(1);
+
+      // verify initial limit
+      const firstCallUrl = mockFetcher.mock.calls[0][0] as string;
+      expect(firstCallUrl).toContain('limit=10');
+
+      // simulate loadMore
+      Object.assign(core.state, { isLoading: false, hasMore: true });
+      core.loadMore();
+
+      // verify fetcher called again with higher limit
+      expect(mockFetcher).toHaveBeenCalledTimes(2);
+
+      const secondCallUrl = mockFetcher.mock.calls[1][0] as string;
+      expect(secondCallUrl).toContain('limit=20'); // 10 + 10
+      expect(core.state.isLoading).toBe(true);
+    });
+
+    it('should ignore loadMore call if already loading', () => {
+      core.handleInput('test');
+      Object.assign(core.state, { isLoading: true });
+
+      core.loadMore();
+
+      // verify it didn't trigger an extra fetch
+      expect(mockFetcher).not.toHaveBeenCalled();
+    });
+  });
 });

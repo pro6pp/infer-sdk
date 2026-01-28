@@ -32,10 +32,10 @@ export interface InferJSConfig extends InferConfig {
    */
   noResultsText?: string;
   /**
-   * The text to show on the load more button.
-   * @default 'Show more results...'
+   * The text to show on the bottom loading indicator.
+   * @default 'Loading more...'
    */
-  loadMoreText?: string;
+  loadingText?: string;
   /**
    * If true, shows a clear button when the input is not empty.
    * @default true
@@ -53,14 +53,14 @@ export class InferJS {
   private list!: HTMLUListElement;
   private dropdown!: HTMLDivElement;
   private wrapper!: HTMLDivElement;
-  private loader!: HTMLDivElement;
+  private dropdownLoader!: HTMLDivElement;
   private clearButton!: HTMLButtonElement;
-  private loadMoreButton!: HTMLButtonElement;
   private useDefaultStyles: boolean;
   private noResultsText: string;
-  private loadMoreText: string;
+  private loadingText: string;
   private showClearButton: boolean;
   private isOpen: boolean = false;
+  private observer: IntersectionObserver;
 
   /**
    * Initializes the Infer logic on a target element.
@@ -74,7 +74,7 @@ export class InferJS {
     }
 
     this.noResultsText = config.noResultsText || 'No results found';
-    this.loadMoreText = config.loadMoreText || 'Show more results...';
+    this.loadingText = config.loadingText || 'Loading more...';
     this.showClearButton = config.showClearButton !== false;
     this.useDefaultStyles = config.style !== 'none';
 
@@ -117,11 +117,6 @@ export class InferJS {
     addons.className = 'pro6pp-input-addons';
     this.wrapper.appendChild(addons);
 
-    this.loader = document.createElement('div');
-    this.loader.className = 'pro6pp-loader';
-    this.loader.style.display = 'none';
-    addons.appendChild(this.loader);
-
     this.clearButton = document.createElement('button');
     this.clearButton.type = 'button';
     this.clearButton.className = 'pro6pp-clear-button';
@@ -145,12 +140,14 @@ export class InferJS {
     this.list.setAttribute('role', 'listbox');
     this.dropdown.appendChild(this.list);
 
-    this.loadMoreButton = document.createElement('button');
-    this.loadMoreButton.type = 'button';
-    this.loadMoreButton.className = 'pro6pp-load-more';
-    this.loadMoreButton.textContent = this.loadMoreText;
-    this.loadMoreButton.style.display = 'none';
-    this.dropdown.appendChild(this.loadMoreButton);
+    this.dropdownLoader = document.createElement('div');
+    this.dropdownLoader.className = 'pro6pp-loader-item';
+    this.dropdownLoader.style.display = 'none';
+    this.dropdownLoader.innerHTML = `
+      <div class="pro6pp-mini-spinner"></div>
+      <span>${this.loadingText}</span>
+    `;
+    this.dropdown.appendChild(this.dropdownLoader);
 
     this.core = new InferCore({
       ...config,
@@ -169,6 +166,15 @@ export class InferJS {
         if (config.onSelect) config.onSelect(selection);
       },
     });
+
+    this.observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && this.core.state.hasMore && !this.core.state.isLoading) {
+          this.core.loadMore();
+        }
+      },
+      { threshold: 0.1 },
+    );
 
     this.bindEvents();
   }
@@ -217,11 +223,6 @@ export class InferJS {
       this.input.focus();
     });
 
-    this.loadMoreButton.addEventListener('click', (e) => {
-      e.preventDefault();
-      this.core.loadMore();
-    });
-
     document.addEventListener('mousedown', (e) => {
       if (!this.wrapper.contains(e.target as Node)) {
         this.isOpen = false;
@@ -239,8 +240,6 @@ export class InferJS {
     if (this.input.value !== state.query) {
       this.input.value = state.query;
     }
-
-    this.loader.style.display = state.isLoading ? 'block' : 'none';
 
     if (this.showClearButton) {
       this.clearButton.style.display = state.query.length > 0 ? 'flex' : 'none';
@@ -262,13 +261,19 @@ export class InferJS {
     }
 
     this.dropdown.style.display = 'block';
-    this.loadMoreButton.style.display = state.hasMore ? 'block' : 'none';
+
+    if (state.isLoading && hasResults) {
+      this.dropdownLoader.style.display = 'flex';
+    } else {
+      this.dropdownLoader.style.display = 'none';
+    }
 
     if (state.isLoading && !hasResults) {
       const li = document.createElement('li');
       li.className = 'pro6pp-no-results';
-      li.textContent = 'Loading suggestions...';
+      li.textContent = 'Searching...';
       this.list.appendChild(li);
+      this.dropdownLoader.style.display = 'none';
       return;
     }
 
@@ -349,6 +354,14 @@ export class InferJS {
 
       this.list.appendChild(li);
     });
+
+    if (state.hasMore && !state.isLoading) {
+      const sentinel = document.createElement('li');
+      sentinel.style.height = '1px';
+      sentinel.style.opacity = '0';
+      this.list.appendChild(sentinel);
+      this.observer.observe(sentinel);
+    }
   }
 }
 

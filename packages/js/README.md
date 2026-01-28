@@ -114,7 +114,6 @@ You can then target the following classes in your CSS:
 | :----------------------- | :-------------------------------------------------------- |
 | `.pro6pp-wrapper`        | The container element wrapping the input and dropdown.    |
 | `.pro6pp-input`          | The input element itself.                                 |
-| `.pro6pp-loader`         | The loading spinner shown during API requests.            |
 | `.pro6pp-dropdown`       | The `<ul>` list containing the suggestions.               |
 | `.pro6pp-item`           | A single suggestion item (`<li>`).                        |
 | `.pro6pp-item--active`   | The currently highlighted item (for keyboard navigation). |
@@ -122,3 +121,5 @@ You can then target the following classes in your CSS:
 | `.pro6pp-item__subtitle` | The secondary text (e.g., city or result count).          |
 | `.pro6pp-item__chevron`  | The icon indicating a folder/expandable result.           |
 | `.pro6pp-no-results`     | The message shown when no suggestions are found.          |
+| `.pro6pp-loader-item`    | The list item containing the loading spinner and text.    |
+| `.pro6pp-mini-spinner`   | The spinner icon inside the loader item.                  |

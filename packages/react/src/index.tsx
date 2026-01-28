@@ -157,10 +157,10 @@ export interface Pro6PPInferProps extends UseInferConfig {
    * @default 'No results found'
    */
   noResultsText?: string;
-  /** * The text to show on the load more button.
-   * @default 'Show more results...'
+  /** * The text to show on the bottom loading indicator.
+   * @default 'Loading more...'
    */
-  loadMoreText?: string;
+  loadingText?: string;
   /** A custom render function for the "no results" state. */
   renderNoResults?: (state: InferState) => React.ReactNode;
   /**
@@ -184,7 +184,7 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
       renderItem,
       disableDefaultStyles = false,
       noResultsText = 'No results found',
-      loadMoreText = 'Show more results...',
+      loadingText = 'Loading more...',
       renderNoResults,
       showClearButton = true,
       ...config
@@ -195,6 +195,7 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
     const [isOpen, setIsOpen] = useState(false);
     const internalInputRef = useRef<HTMLInputElement>(null);
     const wrapperRef = useRef<HTMLDivElement>(null);
+    const observerTarget = useRef<HTMLLIElement>(null);
 
     useImperativeHandle(ref, () => internalInputRef.current!);
 
@@ -219,6 +220,26 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    useEffect(() => {
+      const currentTarget = observerTarget.current;
+      if (!currentTarget) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && state.hasMore && !state.isLoading) {
+            loadMore();
+          }
+        },
+        { threshold: 0.1 },
+      );
+
+      observer.observe(currentTarget);
+
+      return () => {
+        if (currentTarget) observer.unobserve(currentTarget);
+      };
+    }, [state.hasMore, state.isLoading, loadMore, isOpen]);
 
     const items = useMemo(() => {
       return [
@@ -249,6 +270,8 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
 
     const showDropdown = isOpen && (hasResults || state.isLoading || showNoResults);
 
+    const isInfiniteLoading = state.isLoading && items.length > 0;
+
     return (
       <div ref={wrapperRef} className={`pro6pp-wrapper ${className || ''}`} style={style}>
         <div style={{ position: 'relative' }}>
@@ -271,7 +294,6 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
             }}
           />
           <div className="pro6pp-input-addons">
-            {state.isLoading && <div className="pro6pp-loader" />}
             {showClearButton && state.query.length > 0 && (
               <button
                 type="button"
@@ -305,70 +327,72 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
           >
             <ul className="pro6pp-list" role="listbox">
               {hasResults ? (
-                items.map((item, index) => {
-                  const isActive = index === state.selectedSuggestionIndex;
-                  const secondaryText =
-                    item.subtitle || (item.count !== undefined ? item.count : '');
-                  const showChevron = item.value === undefined || item.value === null;
+                <>
+                  {items.map((item, index) => {
+                    const isActive = index === state.selectedSuggestionIndex;
+                    const secondaryText =
+                      item.subtitle || (item.count !== undefined ? item.count : '');
+                    const showChevron = item.value === undefined || item.value === null;
 
-                  return (
-                    <li
-                      key={`${item.label}-${index}`}
-                      role="option"
-                      aria-selected={isActive}
-                      className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
-                      onMouseDown={(e) => e.preventDefault()}
-                      onClick={() => handleSelect(item)}
-                    >
-                      {renderItem ? (
-                        renderItem(item, isActive)
-                      ) : (
-                        <>
-                          <HighlightedText text={item.label} query={state.query} />
-                          {secondaryText && (
-                            <span className="pro6pp-item__subtitle">, {secondaryText}</span>
-                          )}
-                          {showChevron && (
-                            <div className="pro6pp-item__chevron">
-                              <svg
-                                width="16"
-                                height="16"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              >
-                                <polyline points="9 18 15 12 9 6"></polyline>
-                              </svg>
-                            </div>
-                          )}
-                        </>
-                      )}
+                    return (
+                      <li
+                        key={`${item.label}-${index}`}
+                        role="option"
+                        aria-selected={isActive}
+                        className={`pro6pp-item ${isActive ? 'pro6pp-item--active' : ''}`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelect(item)}
+                      >
+                        {renderItem ? (
+                          renderItem(item, isActive)
+                        ) : (
+                          <>
+                            <HighlightedText text={item.label} query={state.query} />
+                            {secondaryText && (
+                              <span className="pro6pp-item__subtitle">, {secondaryText}</span>
+                            )}
+                            {showChevron && (
+                              <div className="pro6pp-item__chevron">
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </li>
+                    );
+                  })}
+
+                  {/* detects when we reach the bottom */}
+                  {state.hasMore && !state.isLoading && (
+                    <li key="sentinel" ref={observerTarget} style={{ height: '1px', opacity: 0 }} />
+                  )}
+
+                  {isInfiniteLoading && (
+                    <li key="loader" className="pro6pp-loader-item">
+                      <div className="pro6pp-mini-spinner" />
+                      <span>{loadingText}</span>
                     </li>
-                  );
-                })
+                  )}
+                </>
               ) : state.isLoading ? (
-                <li className="pro6pp-no-results">Loading suggestions...</li>
+                <li className="pro6pp-no-results">Searching...</li>
               ) : (
                 <li className="pro6pp-no-results">
                   {renderNoResults ? renderNoResults(state) : noResultsText}
                 </li>
               )}
             </ul>
-            {state.hasMore && (
-              <button
-                type="button"
-                className="pro6pp-load-more"
-                onClick={(e) => {
-                  e.preventDefault();
-                  loadMore();
-                }}
-              >
-                {loadMoreText}
-              </button>
-            )}
           </div>
         )}
       </div>
