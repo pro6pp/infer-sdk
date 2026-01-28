@@ -7,6 +7,7 @@
     "@pro6pp/infer-react": "0.0.1"
   },
   "changesets": [
+    "chubby-seas-turn",
     "dull-peaches-dance",
     "dull-pigs-bow",
     "easy-glasses-thank",

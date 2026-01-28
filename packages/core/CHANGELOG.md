@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.13
+
+### Patch Changes
+
+- Allow changing input after a complete address.
+
 ## 0.0.2-beta.12
 
 ### Patch Changes
