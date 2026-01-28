@@ -100,6 +100,7 @@ export class InferCore {
       isLoading: !!value.trim(),
       selectedSuggestionIndex: -1,
       hasMore: false,
+      stage: isEditingFinal ? null : this.state.stage,
     });
 
     if (isEditingFinal) {
