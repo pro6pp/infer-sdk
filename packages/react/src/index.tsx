@@ -294,7 +294,6 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
             }}
           />
           <div className="pro6pp-input-addons">
-            {state.isLoading && <div className="pro6pp-loader" />}
             {showClearButton && state.query.length > 0 && (
               <button
                 type="button"

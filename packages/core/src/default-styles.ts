@@ -71,17 +71,6 @@ export const DEFAULT_STYLES = `
     background-color: #f3f4f6;
   }
 
-  .pro6pp-loader {
-    width: 20px;
-    height: 20px;
-    margin: 0 8px;
-    border: 2px solid #e0e0e0;
-    border-top-color: #6b7280;
-    border-radius: 50%;
-    animation: pro6pp-spin 0.6s linear infinite;
-    flex-shrink: 0;
-  }
-
   .pro6pp-dropdown {
     position: absolute;
     top: 100%;

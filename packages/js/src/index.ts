@@ -53,7 +53,6 @@ export class InferJS {
   private list!: HTMLUListElement;
   private dropdown!: HTMLDivElement;
   private wrapper!: HTMLDivElement;
-  private loader!: HTMLDivElement;
   private clearButton!: HTMLButtonElement;
   private useDefaultStyles: boolean;
   private noResultsText: string;
@@ -116,11 +115,6 @@ export class InferJS {
     const addons = document.createElement('div');
     addons.className = 'pro6pp-input-addons';
     this.wrapper.appendChild(addons);
-
-    this.loader = document.createElement('div');
-    this.loader.className = 'pro6pp-loader';
-    this.loader.style.display = 'none';
-    addons.appendChild(this.loader);
 
     this.clearButton = document.createElement('button');
     this.clearButton.type = 'button';
@@ -236,8 +230,6 @@ export class InferJS {
     if (this.input.value !== state.query) {
       this.input.value = state.query;
     }
-
-    this.loader.style.display = state.isLoading ? 'block' : 'none';
 
     if (this.showClearButton) {
       this.clearButton.style.display = state.query.length > 0 ? 'flex' : 'none';
