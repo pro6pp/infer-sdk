@@ -53,6 +53,7 @@ export class InferJS {
   private list!: HTMLUListElement;
   private dropdown!: HTMLDivElement;
   private wrapper!: HTMLDivElement;
+  private dropdownLoader!: HTMLDivElement;
   private clearButton!: HTMLButtonElement;
   private useDefaultStyles: boolean;
   private noResultsText: string;
@@ -138,6 +139,15 @@ export class InferJS {
     this.list.className = 'pro6pp-list';
     this.list.setAttribute('role', 'listbox');
     this.dropdown.appendChild(this.list);
+
+    this.dropdownLoader = document.createElement('div');
+    this.dropdownLoader.className = 'pro6pp-loader-item';
+    this.dropdownLoader.style.display = 'none';
+    this.dropdownLoader.innerHTML = `
+      <div class="pro6pp-mini-spinner"></div>
+      <span>${this.loadingText}</span>
+    `;
+    this.dropdown.appendChild(this.dropdownLoader);
 
     this.core = new InferCore({
       ...config,
@@ -252,11 +262,18 @@ export class InferJS {
 
     this.dropdown.style.display = 'block';
 
+    if (state.isLoading && hasResults) {
+      this.dropdownLoader.style.display = 'flex';
+    } else {
+      this.dropdownLoader.style.display = 'none';
+    }
+
     if (state.isLoading && !hasResults) {
       const li = document.createElement('li');
       li.className = 'pro6pp-no-results';
       li.textContent = 'Searching...';
       this.list.appendChild(li);
+      this.dropdownLoader.style.display = 'none';
       return;
     }
 
@@ -344,16 +361,6 @@ export class InferJS {
       sentinel.style.opacity = '0';
       this.list.appendChild(sentinel);
       this.observer.observe(sentinel);
-    }
-
-    if (state.isLoading && items.length > 0) {
-      const loaderLi = document.createElement('li');
-      loaderLi.className = 'pro6pp-loader-item';
-      loaderLi.innerHTML = `
-        <div class="pro6pp-mini-spinner"></div>
-        <span>${this.loadingText}</span>
-      `;
-      this.list.appendChild(loaderLi);
     }
   }
 }

@@ -375,11 +375,11 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
 
                   {/* detects when we reach the bottom */}
                   {state.hasMore && !state.isLoading && (
-                    <li ref={observerTarget} style={{ height: '1px', opacity: 0 }} />
+                    <li key="sentinel" ref={observerTarget} style={{ height: '1px', opacity: 0 }} />
                   )}
 
                   {isInfiniteLoading && (
-                    <li className="pro6pp-loader-item">
+                    <li key="loader" className="pro6pp-loader-item">
                       <div className="pro6pp-mini-spinner" />
                       <span>{loadingText}</span>
                     </li>
