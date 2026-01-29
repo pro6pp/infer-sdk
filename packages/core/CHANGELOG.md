@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.14
+
+### Patch Changes
+
+- Add infinite scrolling
+
 ## 0.0.2-beta.13
 
 ### Patch Changes

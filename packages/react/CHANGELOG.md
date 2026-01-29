@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.16
+
+### Patch Changes
+
+- Add infinite scrolling
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.14
+
 ## 0.0.2-beta.15
 
 ### Patch Changes
