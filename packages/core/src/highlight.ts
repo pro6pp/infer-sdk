@@ -1,7 +1,28 @@
 import { HighlightSegment } from './types';
 
 /**
+ * Merges consecutive segments with the same match status.
+ */
+function mergeSegments(segments: HighlightSegment[]): HighlightSegment[] {
+  if (segments.length === 0) return segments;
+
+  const merged: HighlightSegment[] = [];
+
+  for (const seg of segments) {
+    const last = merged[merged.length - 1];
+    if (last && last.match === seg.match) {
+      last.text += seg.text;
+    } else {
+      merged.push({ text: seg.text, match: seg.match });
+    }
+  }
+
+  return merged;
+}
+
+/**
  * Splits text into matched and unmatched segments based on a fuzzy query sequence.
+ * Consecutive matched characters are merged into single segments for cleaner rendering.
  */
 export function getHighlightSegments(text: string, query: string): HighlightSegment[] {
   if (!query || !text) return [{ text, match: false }];
@@ -40,5 +61,5 @@ export function getHighlightSegments(text: string, query: string): HighlightSegm
     return [{ text, match: false }];
   }
 
-  return segments;
+  return mergeSegments(segments);
 }

@@ -189,7 +189,7 @@ describe('InferCore', () => {
       };
 
       const item: InferResult = {
-        label: 'Dam 1, Amsterdam',
+        label: 'Dam 1, 1012JS, Amsterdam',
         value: address,
       };
 
@@ -197,7 +197,7 @@ describe('InferCore', () => {
 
       expect(onSelect).toHaveBeenCalledWith(address);
       expect(core.state.isValid).toBe(true);
-      expect(core.state.query).toBe('Dam 1, Amsterdam');
+      expect(core.state.query).toBe('Dam 1, 1012JS, Amsterdam');
     });
 
     it('should append comma for intermediate selection in city/street stage', () => {

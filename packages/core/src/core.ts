@@ -1,4 +1,5 @@
 import { InferConfig, InferState, InferResult, Fetcher, AddressValue, CountryCode } from './types';
+import { formatLabelByInputOrder } from './label-formatter';
 
 const DEFAULTS = {
   API_URL: 'https://api.pro6pp.nl/v2',
@@ -207,10 +208,11 @@ export class InferCore {
       let finalQuery = label;
 
       if (valueObj && Object.keys(valueObj).length > 0) {
-        const { street, street_number, city, addition } = valueObj;
+        const { street, street_number, postcode, city, addition } = valueObj;
         if (street && street_number && city) {
           const suffix = addition ? ` ${addition}` : '';
-          finalQuery = `${street} ${street_number}${suffix}, ${city}`;
+          const postcodeStr = postcode ? `${postcode}, ` : '';
+          finalQuery = `${street} ${street_number}${suffix}, ${postcodeStr}${city}`;
         }
       }
 
@@ -394,7 +396,8 @@ export class InferCore {
       const key = `${item.label}|${item.subtitle || ''}|${JSON.stringify(item.value || {})}`;
       if (!seen.has(key)) {
         seen.add(key);
-        uniqueSuggestions.push(item);
+        const reformattedItem = this.reformatSuggestionLabel(item);
+        uniqueSuggestions.push(reformattedItem);
       }
     }
 
@@ -423,6 +426,29 @@ export class InferCore {
     if (newState.isValid && uniqueSuggestions.length === 1) {
       this.selectItem(uniqueSuggestions[0]);
     }
+  }
+
+  /**
+   * Reformats a suggestion's label based on the user's input order.
+   * If the suggestion has a structured value object, we reorder the label
+   * to match how the user typed the components.
+   */
+  private reformatSuggestionLabel(item: InferResult): InferResult {
+    if (!item.value || typeof item.value === 'string') {
+      return item;
+    }
+
+    const addressValue = item.value as AddressValue;
+    if (!addressValue.street || !addressValue.city) {
+      return item;
+    }
+
+    const reformattedLabel = formatLabelByInputOrder(this.state.query, addressValue);
+    if (reformattedLabel) {
+      return { ...item, label: reformattedLabel };
+    }
+
+    return item;
   }
 
   private updateQueryAndFetch(nextQuery: string): void {
