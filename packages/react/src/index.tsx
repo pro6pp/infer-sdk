@@ -25,11 +25,13 @@ const HighlightedText = ({ text, query }: { text: string; query: string }) => {
     <span className="pro6pp-item__label">
       {segments.map((seg, i) =>
         seg.match ? (
-          <strong key={i} className="pro6pp-item__label--match">
+          <span key={i} className="pro6pp-item__label--match">
             {seg.text}
-          </strong>
+          </span>
         ) : (
-          seg.text
+          <span key={i} className="pro6pp-item__label--unmatched">
+            {seg.text}
+          </span>
         ),
       )}
     </span>
@@ -54,10 +56,11 @@ export interface UseInferConfig extends InferConfig {
 export function useInfer(config: UseInferConfig) {
   const [state, setState] = useState<InferState>(() => {
     if (config.initialValue) {
+      const postcodeStr = config.initialValue.postcode ? `${config.initialValue.postcode}, ` : '';
       return {
         ...INITIAL_STATE,
         value: config.initialValue,
-        query: `${config.initialValue.street} ${config.initialValue.street_number}, ${config.initialValue.city}`,
+        query: `${config.initialValue.street} ${config.initialValue.street_number}, ${postcodeStr}${config.initialValue.city}`,
         isValid: true,
         stage: 'final',
       };
@@ -91,7 +94,8 @@ export function useInfer(config: UseInferConfig) {
 
     if (config.initialValue) {
       const address = config.initialValue;
-      const label = `${address.street} ${address.street_number}, ${address.city}`;
+      const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
+      const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
       instance.selectItem({ label, value: address });
     }
 
@@ -109,7 +113,8 @@ export function useInfer(config: UseInferConfig) {
 
   const setValue = (address: AddressValue) => {
     if (!address) return;
-    const label = `${address.street} ${address.street_number}, ${address.city}`;
+    const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
+    const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
     core.selectItem({ label, value: address });
   };
 

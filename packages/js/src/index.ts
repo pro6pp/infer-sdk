@@ -193,7 +193,8 @@ export class InferJS {
    */
   public set value(address: AddressValue) {
     if (!address) return;
-    const label = `${address.street} ${address.street_number}, ${address.city}`;
+    const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
+    const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
     this.core.selectItem({ label, value: address });
   }
 
@@ -303,14 +304,10 @@ export class InferJS {
 
       const segments = getHighlightSegments(item.label, state.query);
       segments.forEach(({ text, match }) => {
-        if (match) {
-          const strong = document.createElement('strong');
-          strong.className = 'pro6pp-item__label--match';
-          strong.textContent = text;
-          labelSpan.appendChild(strong);
-        } else {
-          labelSpan.appendChild(document.createTextNode(text));
-        }
+        const span = document.createElement('span');
+        span.className = match ? 'pro6pp-item__label--match' : 'pro6pp-item__label--unmatched';
+        span.textContent = text;
+        labelSpan.appendChild(span);
       });
 
       li.appendChild(labelSpan);

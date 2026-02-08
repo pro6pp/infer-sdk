@@ -130,15 +130,23 @@ export const DEFAULT_STYLES = `
   }
 
   .pro6pp-item__label {
-    font-weight: 500;
+    font-weight: 400;
     flex-shrink: 1;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
+  .pro6pp-item__label--match {
+    font-weight: 520;
+  }
+
+  .pro6pp-item__label--unmatched {
+    font-weight: 400;
+    color: #4b5563;
+  }
+
   .pro6pp-item__subtitle {
-    font-size: 13px;
     color: #6b7280;
     flex-shrink: 0;
   }
@@ -156,20 +164,6 @@ export const DEFAULT_STYLES = `
     color: #6b7280;
     font-size: 15px;
     text-align: center;
-  }
-
-  .pro6pp-load-more {
-    width: 100%;
-    padding: 14px;
-    background: #f9fafb;
-    border: none;
-    border-top: 1px solid #e0e0e0;
-    color: #3b82f6;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    flex-shrink: 0;
-    touch-action: manipulation;
   }
 
   .pro6pp-loader-item {
@@ -202,17 +196,6 @@ export const DEFAULT_STYLES = `
       padding: 10px 12px;
       font-size: 14px;
     }
-    .pro6pp-item__subtitle {
-      font-size: 12px;
-    }
-    .pro6pp-load-more {
-      padding: 12px;
-      font-size: 13px;
-    }
-  }
-
-  .pro6pp-load-more:active {
-    background-color: #f3f4f6;
   }
 
   @keyframes pro6pp-spin {

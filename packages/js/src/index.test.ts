@@ -111,14 +111,15 @@ describe('Infer JS', () => {
     fireEvent.input(input, { target: { value: 'test' } });
     vi.advanceTimersByTime(150);
 
-    await waitFor(() => getByText(container, matchText('A')));
+    await waitFor(() => {
+      const items = container.querySelectorAll('.pro6pp-item');
+      expect(items.length).toBe(2);
+    });
 
     fireEvent.keyDown(input, { key: 'ArrowDown' });
 
-    await waitFor(() => {
-      const items = container.querySelectorAll('.pro6pp-item');
-      expect(items[0].classList.contains('pro6pp-item--active')).toBe(true);
-    });
+    const items = container.querySelectorAll('.pro6pp-item');
+    expect(items[0].classList.contains('pro6pp-item--active')).toBe(true);
   });
 
   it('should trigger loadMore when scrolling to bottom', async () => {
