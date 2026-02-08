@@ -1,5 +1,13 @@
 # @pro6pp/infer-react
 
+## 0.0.2-beta.17
+
+### Patch Changes
+
+- Improve UI and formatting of suggestions.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.15
+
 ## 0.0.2-beta.16
 
 ### Patch Changes

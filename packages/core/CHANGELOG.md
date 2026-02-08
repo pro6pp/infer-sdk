@@ -1,5 +1,11 @@
 # @pro6pp/infer-core
 
+## 0.0.2-beta.15
+
+### Patch Changes
+
+- Improve UI and formatting of suggestions.
+
 ## 0.0.2-beta.14
 
 ### Patch Changes

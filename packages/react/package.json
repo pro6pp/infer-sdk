@@ -20,7 +20,7 @@
     "url": "https://github.com/pro6pp/infer-sdk/issues"
   },
   "sideEffects": false,
-  "version": "0.0.2-beta.16",
+  "version": "0.0.2-beta.17",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -46,7 +46,7 @@
     "react": ">=16"
   },
   "dependencies": {
-    "@pro6pp/infer-core": "0.0.2-beta.14"
+    "@pro6pp/infer-core": "0.0.2-beta.15"
   },
   "devDependencies": {
     "@testing-library/dom": "^10.4.1",
