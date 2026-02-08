@@ -71,3 +71,27 @@ publish_npm:
     - npm run release
   rules:
     - if: $CI_COMMIT_BRANCH == "main"
+
+# mirrors to GitHub without test files and CI config.
+# uses GITHUB_DEPLOY_KEY env var (SSH private key with write access to https://github.com/pro6pp/infer-sdk)
+mirror_github:
+  stage: release
+  image: alpine:latest
+  before_script:
+    # set up SSH for GitHub access
+    - apk add --no-cache git openssh-client
+    - eval $(ssh-agent -s)
+    - echo "$GITHUB_DEPLOY_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - ssh-keyscan github.com >> ~/.ssh/known_hosts
+  script:
+    - git config user.email "ci@pro6pp.nl"
+    - git config user.name "GitLab CI"
+    - git checkout -B github-mirror
+    # remove files we don't want public
+    - git rm -r --cached --ignore-unmatch packages/**/*.test.ts .gitlab-ci.yml
+    - git commit -m "Remove test files for public mirror" --allow-empty
+    - git remote add github git@github.com:pro6pp/infer-sdk.git || true
+    - git push -f github github-mirror:main
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main"
