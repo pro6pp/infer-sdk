@@ -21,7 +21,9 @@
   "bugs": {
     "url": "https://github.com/pro6pp/infer-sdk/issues"
   },
-  "sideEffects": false,
+  "sideEffects": [
+    "*.css"
+  ],
   "version": "0.0.2-beta.15",
   "main": "./dist/index.cjs",
   "module": "./dist/index.js",
@@ -34,7 +36,8 @@
       "script": "./dist/index.global.js",
       "import": "./dist/index.js",
       "require": "./dist/index.cjs"
-    }
+    },
+    "./styles.css": "./dist/styles.css"
   },
   "files": [
     "dist",

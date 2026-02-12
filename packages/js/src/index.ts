@@ -104,9 +104,7 @@ export class InferJS {
     this.input.setAttribute('inputmode', 'search');
     this.input.setAttribute('enterkeyhint', 'search');
 
-    if (this.useDefaultStyles) {
-      this.input.classList.add('pro6pp-input');
-    }
+    this.input.classList.add('pro6pp-input');
 
     if (config.inputClass) {
       const classes = config.inputClass.split(' ');
