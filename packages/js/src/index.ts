@@ -61,6 +61,14 @@ export class InferJS {
   private showClearButton: boolean;
   private isOpen: boolean = false;
   private observer: IntersectionObserver;
+  private boundHandlers: {
+    onInput: (e: Event) => void;
+    onKeyDown: (e: KeyboardEvent) => void;
+    onClearClick: () => void;
+    onDocumentMouseDown: (e: MouseEvent) => void;
+    onFocus: () => void;
+  } | null = null;
+  private isDestroyed: boolean = false;
 
   /**
    * Initializes the Infer logic on a target element.
@@ -198,6 +206,38 @@ export class InferJS {
     this.core.selectItem({ label, value: address });
   }
 
+  /**
+   * Destroys the InferJS instance, removing all event listeners and DOM elements.
+   * Call this before creating a new instance on the same input element.
+   */
+  public destroy() {
+    if (this.isDestroyed) return;
+    this.isDestroyed = true;
+
+    // Remove event listeners
+    if (this.boundHandlers) {
+      this.input.removeEventListener('input', this.boundHandlers.onInput);
+      this.input.removeEventListener('keydown', this.boundHandlers.onKeyDown);
+      this.clearButton.removeEventListener('click', this.boundHandlers.onClearClick);
+      document.removeEventListener('mousedown', this.boundHandlers.onDocumentMouseDown);
+      this.input.removeEventListener('focus', this.boundHandlers.onFocus);
+      this.boundHandlers = null;
+    }
+
+    // Disconnect intersection observer
+    this.observer.disconnect();
+
+    // Move input back out of wrapper and remove wrapper
+    if (this.wrapper.parentNode) {
+      this.wrapper.parentNode.insertBefore(this.input, this.wrapper);
+      this.wrapper.remove();
+    }
+
+    this.input.classList.remove('pro6pp-input');
+
+    this.input.value = '';
+  }
+
   private injectStyles() {
     const styleId = 'pro6pp-styles';
     if (!document.getElementById(styleId)) {
@@ -209,32 +249,36 @@ export class InferJS {
   }
 
   private bindEvents() {
-    this.input.addEventListener('input', (e) => {
-      const val = (e.target as HTMLInputElement).value;
-      this.isOpen = true;
-      this.core.handleInput(val);
-    });
+    this.boundHandlers = {
+      onInput: (e: Event) => {
+        const val = (e.target as HTMLInputElement).value;
+        this.isOpen = true;
+        this.core.handleInput(val);
+      },
+      onKeyDown: (e: KeyboardEvent) => {
+        this.core.handleKeyDown(e);
+      },
+      onClearClick: () => {
+        this.core.handleInput('');
+        this.input.focus();
+      },
+      onDocumentMouseDown: (e: MouseEvent) => {
+        if (!this.wrapper.contains(e.target as Node)) {
+          this.isOpen = false;
+          this.dropdown.style.display = 'none';
+        }
+      },
+      onFocus: () => {
+        this.isOpen = true;
+        this.render(this.core.state);
+      },
+    };
 
-    this.input.addEventListener('keydown', (e) => {
-      this.core.handleKeyDown(e);
-    });
-
-    this.clearButton.addEventListener('click', () => {
-      this.core.handleInput('');
-      this.input.focus();
-    });
-
-    document.addEventListener('mousedown', (e) => {
-      if (!this.wrapper.contains(e.target as Node)) {
-        this.isOpen = false;
-        this.dropdown.style.display = 'none';
-      }
-    });
-
-    this.input.addEventListener('focus', () => {
-      this.isOpen = true;
-      this.render(this.core.state);
-    });
+    this.input.addEventListener('input', this.boundHandlers.onInput);
+    this.input.addEventListener('keydown', this.boundHandlers.onKeyDown);
+    this.clearButton.addEventListener('click', this.boundHandlers.onClearClick);
+    document.addEventListener('mousedown', this.boundHandlers.onDocumentMouseDown);
+    this.input.addEventListener('focus', this.boundHandlers.onFocus);
   }
 
   private render(state: InferState) {
