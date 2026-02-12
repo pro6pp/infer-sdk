@@ -214,7 +214,6 @@ export class InferJS {
     if (this.isDestroyed) return;
     this.isDestroyed = true;
 
-    // Remove event listeners
     if (this.boundHandlers) {
       this.input.removeEventListener('input', this.boundHandlers.onInput);
       this.input.removeEventListener('keydown', this.boundHandlers.onKeyDown);
@@ -224,10 +223,8 @@ export class InferJS {
       this.boundHandlers = null;
     }
 
-    // Disconnect intersection observer
     this.observer.disconnect();
 
-    // Move input back out of wrapper and remove wrapper
     if (this.wrapper.parentNode) {
       this.wrapper.parentNode.insertBefore(this.input, this.wrapper);
       this.wrapper.remove();
