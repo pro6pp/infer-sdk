@@ -47,6 +47,37 @@ You can customize the appearance of the component via the following props:
 | `showClearButton`      | If `true`, displays a button to empty the input field. Defaults to `true`.                |
 | `loadingText`          | The text displayed at the bottom of the list when fetching more results.                  |
 
+## Styling
+
+By default, the component auto-injects the necessary CSS. You have several options:
+
+### Option 1: Use auto-injected styles (default)
+
+No extra setup needed. The CSS is embedded and injected automatically.
+
+### Option 2: Import CSS separately
+
+If you prefer to import the CSS file directly:
+
+```tsx
+import { Pro6PPInfer } from '@pro6pp/infer-react';
+import '@pro6pp/infer-react/styles.css';
+
+<Pro6PPInfer
+  authKey="..."
+  country="NL"
+  disableDefaultStyles // disable auto-injection since we imported the CSS
+/>;
+```
+
+### Option 3: Fully custom styles
+
+Set `disableDefaultStyles` and provide your own CSS targeting the `.pro6pp-*` classes:
+
+```tsx
+<Pro6PPInfer authKey="..." country="NL" disableDefaultStyles className="my-custom-wrapper" />
+```
+
 ---
 
 Alternatively, you can use the headless `useInfer` hook.
