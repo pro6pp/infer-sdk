@@ -149,4 +149,44 @@ describe('Infer JS', () => {
     // check fetcher was called a 2nd time
     expect(mockFetcher).toHaveBeenCalledTimes(2);
   });
+
+  it('should clean up DOM and event listeners on destroy()', async () => {
+    mockFetcher.mockResolvedValue({
+      ok: true,
+      json: async () => ({
+        suggestions: [{ label: 'Amsterdam' }],
+      }),
+    });
+
+    const infer = new InferJS(input, { authKey: 'test', country: 'NL', fetcher: mockFetcher });
+
+    expect(container.querySelector('.pro6pp-wrapper')).not.toBeNull();
+    expect(input.classList.contains('pro6pp-input')).toBe(true);
+
+    infer.destroy();
+
+    expect(container.querySelector('.pro6pp-wrapper')).toBeNull();
+    expect(container.querySelector('.pro6pp-dropdown')).toBeNull();
+    expect(container.querySelector('input')).toBe(input);
+    expect(input.classList.contains('pro6pp-input')).toBe(false);
+
+    // Event listeners should be removed
+    fireEvent.input(input, { target: { value: 'test' } });
+    vi.advanceTimersByTime(150);
+
+    expect(mockFetcher).not.toHaveBeenCalled();
+  });
+
+  it('should not create duplicate wrappers when re-attaching after destroy()', async () => {
+    const infer1 = new InferJS(input, { authKey: 'test', country: 'NL', fetcher: mockFetcher });
+
+    expect(container.querySelectorAll('.pro6pp-wrapper').length).toBe(1);
+
+    infer1.destroy();
+    const infer2 = new InferJS(input, { authKey: 'test', country: 'DE', fetcher: mockFetcher });
+
+    expect(container.querySelectorAll('.pro6pp-wrapper').length).toBe(1);
+    expect(container.querySelectorAll('.pro6pp-dropdown').length).toBe(1);
+    expect(infer2).toBeDefined();
+  });
 });
