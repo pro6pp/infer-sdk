@@ -56,11 +56,12 @@ export interface UseInferConfig extends InferConfig {
 export function useInfer(config: UseInferConfig) {
   const [state, setState] = useState<InferState>(() => {
     if (config.initialValue) {
+      const suffix = config.initialValue.addition ? ` ${config.initialValue.addition}` : '';
       const postcodeStr = config.initialValue.postcode ? `${config.initialValue.postcode}, ` : '';
       return {
         ...INITIAL_STATE,
         value: config.initialValue,
-        query: `${config.initialValue.street} ${config.initialValue.street_number}, ${postcodeStr}${config.initialValue.city}`,
+        query: `${config.initialValue.street}, ${config.initialValue.street_number}${suffix}, ${postcodeStr}${config.initialValue.city}`,
         isValid: true,
         stage: 'final',
       };
@@ -94,8 +95,9 @@ export function useInfer(config: UseInferConfig) {
 
     if (config.initialValue) {
       const address = config.initialValue;
+      const suffix = address.addition ? ` ${address.addition}` : '';
       const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
-      const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
+      const label = `${address.street}, ${address.street_number}${suffix}, ${postcodeStr}${address.city}`;
       instance.selectItem({ label, value: address });
     }
 
@@ -113,8 +115,9 @@ export function useInfer(config: UseInferConfig) {
 
   const setValue = (address: AddressValue) => {
     if (!address) return;
+    const suffix = address.addition ? ` ${address.addition}` : '';
     const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
-    const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
+    const label = `${address.street}, ${address.street_number}${suffix}, ${postcodeStr}${address.city}`;
     core.selectItem({ label, value: address });
   };
 

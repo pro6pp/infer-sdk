@@ -212,7 +212,7 @@ export class InferCore {
         if (street && street_number && city) {
           const suffix = addition ? ` ${addition}` : '';
           const postcodeStr = postcode ? `${postcode}, ` : '';
-          finalQuery = `${street} ${street_number}${suffix}, ${postcodeStr}${city}`;
+          finalQuery = `${street}, ${street_number}${suffix}, ${postcodeStr}${city}`;
         }
       }
 

@@ -193,8 +193,9 @@ export class InferJS {
    */
   public set value(address: AddressValue) {
     if (!address) return;
+    const suffix = address.addition ? ` ${address.addition}` : '';
     const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
-    const label = `${address.street} ${address.street_number}, ${postcodeStr}${address.city}`;
+    const label = `${address.street}, ${address.street_number}${suffix}, ${postcodeStr}${address.city}`;
     this.core.selectItem({ label, value: address });
   }
 
