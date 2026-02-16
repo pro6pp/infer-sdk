@@ -189,7 +189,7 @@ describe('InferCore', () => {
       };
 
       const item: InferResult = {
-        label: 'Dam 1, 1012JS, Amsterdam',
+        label: 'Dam, 1, 1012JS, Amsterdam',
         value: address,
       };
 
@@ -197,7 +197,32 @@ describe('InferCore', () => {
 
       expect(onSelect).toHaveBeenCalledWith(address);
       expect(core.state.isValid).toBe(true);
-      expect(core.state.query).toBe('Dam 1, 1012JS, Amsterdam');
+      expect(core.state.query).toBe('Dam, 1, 1012JS, Amsterdam');
+    });
+
+    it('should format query with comma between street and number for addresses with addition', () => {
+      Object.assign(core.state, { stage: 'addition' });
+
+      const address: AddressValue = {
+        street: 'Setheweg',
+        city: 'Meppel',
+        street_number: 11,
+        postcode: '7942LA',
+        addition: '24',
+      };
+
+      const item: InferResult = {
+        label: 'Setheweg, 11, 24, 7942LA, Meppel',
+        value: address,
+      };
+
+      core.selectItem(item);
+
+      expect(onSelect).toHaveBeenCalledWith(address);
+      expect(core.state.isValid).toBe(true);
+      // comma allows the API to parse the address correctly
+      // if user edits the addition later
+      expect(core.state.query).toBe('Setheweg, 11 24, 7942LA, Meppel');
     });
 
     it('should append comma for intermediate selection in city/street stage', () => {
