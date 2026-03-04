@@ -111,6 +111,7 @@ export function useInfer(config: UseInferConfig) {
     config.debounceMs,
     config.maxRetries,
     config.initialValue,
+    config.language,
   ]);
 
   const setValue = (address: AddressValue) => {
@@ -410,6 +411,7 @@ export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
 
 export type {
   CountryCode,
+  LanguageCode,
   Stage,
   AddressValue,
   InferResult,
