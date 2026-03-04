@@ -1,7 +1,12 @@
 /**
  * Supported ISO 3166-1 alpha-2 country codes.
  */
-export type CountryCode = 'NL' | 'DE' | (string & {});
+export type CountryCode = 'NL' | 'DE' | 'BE' | (string & {});
+
+/**
+ * Supported language codes for address labels.
+ */
+export type LanguageCode = 'nl' | 'fr' | 'de' | (string & {});
 
 /**
  * The current step in the address inference process.
@@ -141,6 +146,12 @@ export interface InferConfig {
    * @default 0
    */
   maxRetries?: number;
+  /**
+   * Language code for response labels.
+   * Affects the language of returned address labels.
+   * Only applicable for BE country code.
+   */
+  language?: LanguageCode;
   /**
    * Callback triggered whenever the internal state (suggestions, loading status, etc.) updates.
    */

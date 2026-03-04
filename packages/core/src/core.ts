@@ -46,6 +46,7 @@ export class InferCore {
   private baseLimit: number;
   private currentLimit: number;
   private maxRetries: number;
+  private language?: string;
   private fetcher: Fetcher;
   private onStateChange: (state: InferState) => void;
   private onSelect: (selection: AddressValue | string | null) => void;
@@ -67,6 +68,7 @@ export class InferCore {
     this.explicitApiUrl = config.apiUrl;
     this.baseLimit = config.limit || DEFAULTS.LIMIT;
     this.currentLimit = this.baseLimit;
+    this.language = config.language;
 
     const configRetries =
       config.maxRetries !== undefined ? config.maxRetries : DEFAULTS.MAX_RETRIES;
@@ -342,6 +344,10 @@ export class InferCore {
 
     if (this.authKey) {
       params.set('authKey', this.authKey);
+    }
+
+    if (this.language) {
+      params.set('language', this.language);
     }
 
     const separator = baseUrl.includes('?') ? '&' : '?';

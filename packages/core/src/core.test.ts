@@ -105,6 +105,35 @@ describe('InferCore', () => {
       expect(url.searchParams.get('limit')).toBe('10');
     });
 
+    it('should include language parameter in API URL when configured', () => {
+      const coreWithLanguage = new InferCore({
+        authKey: 'test-auth-key',
+        country: 'BE',
+        language: 'fr',
+        fetcher: mockFetcher,
+        onStateChange,
+      });
+
+      coreWithLanguage.handleInput('1000');
+      vi.advanceTimersByTime(300);
+
+      const callArgs = mockFetcher.mock.calls[0];
+      const url = new URL(callArgs[0] as string);
+
+      expect(url.pathname).toBe('/v2/infer/be');
+      expect(url.searchParams.get('language')).toBe('fr');
+    });
+
+    it('should not include language parameter when not configured', () => {
+      core.handleInput('Eindhoven');
+      vi.advanceTimersByTime(300);
+
+      const callArgs = mockFetcher.mock.calls[0];
+      const url = new URL(callArgs[0] as string);
+
+      expect(url.searchParams.get('language')).toBeNull();
+    });
+
     it('should map "mixed" stage response to state', async () => {
       const mockResponse = {
         stage: 'mixed',
