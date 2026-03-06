@@ -100,13 +100,15 @@ attach(inputElement, {
 
 By default, the SDK injects the necessary CSS for the dropdown. You have several options for styling:
 
+Note: the JavaScript bundle still contains the default CSS as a fallback. Importing `@pro6pp/infer-js/styles.css` with `style: 'none'` disables runtime style injection, but does not provide a CSS-free JS bundle.
+
 ### Option 1: Use auto-injected styles (default)
 
 No extra setup needed. The CSS is embedded in the JS bundle and injected automatically.
 
 ### Option 2: Import CSS separately
 
-If you prefer to import the CSS file directly:
+If you prefer to load the CSS as a separate file:
 
 ```javascript
 import { attach } from '@pro6pp/infer-js';
@@ -115,7 +117,7 @@ import '@pro6pp/infer-js/styles.css';
 attach(inputElement, {
   authKey: '...',
   country: 'NL',
-  style: 'none', // disable auto-injection since we imported the CSS
+  style: 'none', // disable auto-injection since we imported CSS separately
 });
 ```
 
@@ -128,7 +130,7 @@ attach(inputElement, {
   Pro6PP.attach('#address-input', {
     authKey: 'YOUR_AUTH_KEY',
     country: 'NL',
-    style: 'none', // disable auto-injection since we linked the CSS
+    style: 'none', // disable auto-injection since we linked CSS separately
   });
 </script>
 ```
@@ -141,7 +143,7 @@ If you want to control the styling entirely with your own CSS:
 attach(inputElement, {
   authKey: '...',
   country: 'NL',
-  style: 'none', // disables default styles
+  style: 'none', // disables default style injection
 });
 ```
 
