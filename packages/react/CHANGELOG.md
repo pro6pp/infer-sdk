@@ -1,0 +1,173 @@
+# @pro6pp/infer-react
+
+## 0.1.0-beta.20
+
+### Minor Changes
+
+- Add CH, LU and FR country codes.
+
+### Patch Changes
+
+- Updated dependencies
+  - @pro6pp/infer-core@0.1.0-beta.18
+
+## 0.1.0-beta.19
+
+### Minor Changes
+
+- Add DK and AT country codes.
+
+### Patch Changes
+
+- Updated dependencies
+  - @pro6pp/infer-core@0.1.0-beta.17
+
+## 0.0.2-beta.18
+
+### Patch Changes
+
+- Added destroy() method to properly clean up DOM/event listeners, preventing duplicate instances for example when switching countries. Added separate CSS file export as alternative to auto injected styles. Added comma between street and house number to fix bug when editing additions within the input.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.16
+
+## 0.0.2-beta.17
+
+### Patch Changes
+
+- Improve UI and formatting of suggestions.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.15
+
+## 0.0.2-beta.16
+
+### Patch Changes
+
+- Add infinite scrolling
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.14
+
+## 0.0.2-beta.15
+
+### Patch Changes
+
+- Allow changing input after a complete address.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.13
+
+## 0.0.2-beta.14
+
+### Patch Changes
+
+- Add `value` to `onStateChange` callback. Also only include `country` search param in API call if a proxy is used.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.12
+
+## 0.0.2-beta.13
+
+### Patch Changes
+
+- Improve styling and responsiveness on smaller viewports
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.11
+
+## 0.0.2-beta.12
+
+### Patch Changes
+
+- Improve address selection logic and formatting.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.10
+
+## 0.0.2-beta.11
+
+### Patch Changes
+
+- Add fuzzy matching, improve consistency in API calls and responsiveness on mobile.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.9
+
+## 0.0.2-beta.10
+
+### Patch Changes
+
+- Support proxy via custom apiUrl and fix minor JS and React bugs
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.8
+
+## 0.0.2-beta.9
+
+### Patch Changes
+
+- Implemented retrying for network errors and added a "Load more" button.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.7
+
+## 0.0.2-beta.8
+
+### Patch Changes
+
+- Reduce default debouce duration and make it configurable. Also improve jsdocs of types and functions for better dev experience.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.6
+
+## 0.0.2-beta.7
+
+### Patch Changes
+
+- Provide a fully-functional dropdown by default for infer-js and infer-react.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.5
+
+## 0.0.2-beta.6
+
+### Patch Changes
+
+- Fix tsup configuration.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.4
+
+## 0.0.2-beta.5
+
+### Patch Changes
+
+- Fix exported files created by tsup.
+
+## 0.0.2-beta.4
+
+### Patch Changes
+
+- 69f6f9a: Export types in infer-react.
+
+## 0.0.2-beta.3
+
+### Patch Changes
+
+- Added tests and better keyboard navigation.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.3
+
+## 0.0.2-beta.2
+
+### Patch Changes
+
+- Update metadata, keywords and build config.
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.2
+
+## 0.0.2-beta.1
+
+### Patch Changes
+
+- Fix CDN links and build config.
+- 100b83c: Update README and build config for CDN support.
+- Updated dependencies
+- Updated dependencies [100b83c]
+  - @pro6pp/infer-core@0.0.2-beta.1
+
+## 0.0.2-beta.0
+
+### Patch Changes
+
+- Initial beta release
+- Updated dependencies
+  - @pro6pp/infer-core@0.0.2-beta.0

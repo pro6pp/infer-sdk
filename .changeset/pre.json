@@ -1,0 +1,34 @@
+{
+  "mode": "pre",
+  "tag": "beta",
+  "initialVersions": {
+    "@pro6pp/infer-core": "0.0.1",
+    "@pro6pp/infer-js": "0.0.1",
+    "@pro6pp/infer-react": "0.0.1"
+  },
+  "changesets": [
+    "chubby-seas-turn",
+    "dull-peaches-dance",
+    "dull-pigs-bow",
+    "easy-glasses-thank",
+    "funky-canyons-help",
+    "giant-signs-lay",
+    "gold-bats-show",
+    "large-taxis-turn",
+    "modern-phones-create",
+    "neat-vans-thank",
+    "nine-towns-drop",
+    "plain-ants-speak",
+    "real-weeks-travel",
+    "rich-hoops-rescue",
+    "shaggy-candies-wear",
+    "shy-words-say",
+    "social-candies-hear",
+    "strong-pants-remain",
+    "strong-singers-draw",
+    "tricky-bushes-love",
+    "two-months-hang",
+    "wild-lizards-hide",
+    "wild-sheep-greet"
+  ]
+}
