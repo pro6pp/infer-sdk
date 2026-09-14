@@ -1,0 +1,506 @@
+import React, {
+  useState,
+  useMemo,
+  useCallback,
+  useEffect,
+  useRef,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
+import {
+  InferCore,
+  InferConfig,
+  InferState,
+  InferResult,
+  INITIAL_STATE,
+  DEFAULT_STYLES,
+  getFuzzyHighlightSegments,
+  getHighlightSegments,
+  getOrderedItems,
+  getPlaceAddress,
+  AddressValue,
+  PlaceValue,
+  PlaceSuggestion,
+} from '@pro6pp/infer-core';
+
+/** Highlight the matched label parts; close matches align by shared characters. */
+const HighlightedText = ({
+  text,
+  query,
+  fuzzy = false,
+}: {
+  text: string;
+  query: string;
+  fuzzy?: boolean;
+}) => {
+  const segments = useMemo(
+    () => (fuzzy ? getFuzzyHighlightSegments(text, query) : getHighlightSegments(text, query)),
+    [text, query, fuzzy],
+  );
+
+  return (
+    <span className="pro6pp-item__label">
+      {segments.map((seg, i) =>
+        seg.match ? (
+          <span key={i} className="pro6pp-item__label--match">
+            {seg.text}
+          </span>
+        ) : (
+          <span key={i} className="pro6pp-item__label--unmatched">
+            {seg.text}
+          </span>
+        ),
+      )}
+    </span>
+  );
+};
+
+/**
+ * Extended configuration for the React hook.
+ */
+export interface UseInferConfig extends InferConfig {
+  /**
+   * Initial address value to pre-fill the state with.
+   */
+  initialValue?: AddressValue;
+}
+
+/**
+ * A headless React hook that provides the logic for address search using the Infer API.
+ * @param config The engine configuration (authKey, country, etc.).
+ * @returns An object containing the current state, the core instance, and pre-bound input props.
+ */
+export function useInfer(config: UseInferConfig) {
+  const [state, setState] = useState<InferState>(() => {
+    if (config.initialValue) {
+      const suffix = config.initialValue.addition ? ` ${config.initialValue.addition}` : '';
+      const postcodeStr = config.initialValue.postcode ? `${config.initialValue.postcode}, ` : '';
+      return {
+        ...INITIAL_STATE,
+        value: config.initialValue,
+        query: `${config.initialValue.street}, ${config.initialValue.street_number}${suffix}, ${postcodeStr}${config.initialValue.city}`,
+        isValid: true,
+        stage: 'final',
+      };
+    }
+    return INITIAL_STATE;
+  });
+
+  const callbacksRef = useRef({
+    onStateChange: config.onStateChange,
+    onSelect: config.onSelect,
+    onPlaceSelect: config.onPlaceSelect,
+  });
+
+  useEffect(() => {
+    callbacksRef.current = {
+      onStateChange: config.onStateChange,
+      onSelect: config.onSelect,
+      onPlaceSelect: config.onPlaceSelect,
+    };
+  }, [config.onStateChange, config.onSelect, config.onPlaceSelect]);
+
+  const createCore = useCallback(() => {
+    const instance = new InferCore({
+      ...config,
+      onStateChange: (newState) => {
+        setState({ ...newState });
+        callbacksRef.current.onStateChange?.(newState);
+      },
+      onSelect: (selection) => {
+        callbacksRef.current.onSelect?.(selection);
+      },
+      onPlaceSelect: (selection) => {
+        callbacksRef.current.onPlaceSelect?.(selection);
+      },
+    });
+
+    if (config.initialValue) {
+      const address = config.initialValue;
+      const suffix = address.addition ? ` ${address.addition}` : '';
+      const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
+      const label = `${address.street}, ${address.street_number}${suffix}, ${postcodeStr}${address.city}`;
+      instance.selectItem({ label, value: address });
+    }
+
+    return instance;
+  }, [
+    config.country,
+    config.authKey,
+    config.apiUrl,
+    config.fetcher,
+    config.limit,
+    config.debounceMs,
+    config.maxRetries,
+    config.initialValue,
+    config.language,
+    config.sort,
+    config.lat,
+    config.lng,
+    config.types,
+  ]);
+
+  const memoizedCore = useMemo(createCore, [createCore]);
+  const memoizedCoreRef = useRef(memoizedCore);
+  const activeCoreRef = useRef(memoizedCore);
+  const destroyedCoreRef = useRef<InferCore | null>(null);
+
+  if (memoizedCoreRef.current !== memoizedCore) {
+    memoizedCoreRef.current = memoizedCore;
+    activeCoreRef.current = memoizedCore;
+    destroyedCoreRef.current = null;
+  }
+
+  const getActiveCore = useCallback(() => {
+    if (destroyedCoreRef.current === activeCoreRef.current) {
+      activeCoreRef.current = createCore();
+      destroyedCoreRef.current = null;
+    }
+
+    return activeCoreRef.current;
+  }, [createCore]);
+
+  const core = getActiveCore();
+
+  useEffect(() => {
+    const activeCore = getActiveCore();
+    setState({ ...activeCore.state });
+
+    return () => {
+      activeCore.destroy();
+      destroyedCoreRef.current = activeCore;
+    };
+  }, [getActiveCore]);
+
+  const setValue = (address: AddressValue) => {
+    if (!address) return;
+    const suffix = address.addition ? ` ${address.addition}` : '';
+    const postcodeStr = address.postcode ? `${address.postcode}, ` : '';
+    const label = `${address.street}, ${address.street_number}${suffix}, ${postcodeStr}${address.city}`;
+    getActiveCore().selectItem({ label, value: address });
+  };
+
+  const setPlace = (place: PlaceValue) => {
+    if (!place) return;
+    const suggestion: PlaceSuggestion = {
+      type: 'place',
+      label: place.name,
+      value: place,
+    };
+    getActiveCore().selectItem(suggestion);
+  };
+
+  return {
+    /** The current UI state (suggestions, loading status, query, value, etc.). */
+    state,
+    /** The raw InferCore instance for manual control. */
+    core,
+    /** Pre-configured event handlers to spread onto an <input /> element. */
+    inputProps: {
+      value: state.query,
+      onChange: (e: React.ChangeEvent<HTMLInputElement>) =>
+        getActiveCore().handleInput(e.target.value),
+      onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => getActiveCore().handleKeyDown(e),
+    },
+    /** Manually select a specific suggestion. */
+    selectItem: (item: InferResult | string) => getActiveCore().selectItem(item),
+    /** Programmatically set the address value. */
+    setValue,
+    /** Programmatically set a selected place value. */
+    setPlace,
+    /** Load more results. */
+    loadMore: () => getActiveCore().loadMore(),
+  };
+}
+
+/**
+ * Props for the Pro6PPInfer component.
+ */
+export interface Pro6PPInferProps extends UseInferConfig {
+  /** Optional CSS class for the wrapper div. */
+  className?: string;
+  /** Optional inline styles for the wrapper div. */
+  style?: React.CSSProperties;
+  /** Attributes to pass directly to the underlying input element. */
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>;
+  /** * Custom placeholder text.
+   * @default 'Start typing an address...'
+   */
+  placeholder?: string;
+  /** A custom render function for individual suggestion items. */
+  renderItem?: (item: InferResult, isActive: boolean) => React.ReactNode;
+  /** * If true, prevents the default CSS theme from being injected.
+   * @default false
+   */
+  disableDefaultStyles?: boolean;
+  /** * The text to show when no results are found.
+   * @default 'No results found'
+   */
+  noResultsText?: string;
+  /** * The text to show on the bottom loading indicator.
+   * @default 'Loading more...'
+   */
+  loadingText?: string;
+  /** A custom render function for the "no results" state. */
+  renderNoResults?: (state: InferState) => React.ReactNode;
+  /**
+   * If true, shows a clear button when the input is not empty.
+   * @default true
+   */
+  showClearButton?: boolean;
+}
+
+/**
+ * A styled React component for Pro6PP Infer API.
+ * Includes styling, keyboard navigation, and loading states.
+ */
+export const Pro6PPInfer = forwardRef<HTMLInputElement, Pro6PPInferProps>(
+  (
+    {
+      className,
+      style,
+      inputProps,
+      placeholder = 'Start typing an address...',
+      renderItem,
+      disableDefaultStyles = false,
+      noResultsText = 'No results found',
+      loadingText = 'Loading more...',
+      renderNoResults,
+      showClearButton = true,
+      ...config
+    },
+    ref,
+  ) => {
+    const { state, selectItem, loadMore, inputProps: coreInputProps, core } = useInfer(config);
+    const [isOpen, setIsOpen] = useState(false);
+    const internalInputRef = useRef<HTMLInputElement>(null);
+    const wrapperRef = useRef<HTMLDivElement>(null);
+    const observerTarget = useRef<HTMLLIElement>(null);
+
+    useImperativeHandle(ref, () => internalInputRef.current!);
+
+    useEffect(() => {
+      if (disableDefaultStyles) return;
+      const styleId = 'pro6pp-styles';
+      if (!document.getElementById(styleId)) {
+        const styleEl = document.createElement('style');
+        styleEl.id = styleId;
+        styleEl.textContent = DEFAULT_STYLES;
+        document.head.appendChild(styleEl);
+      }
+    }, [disableDefaultStyles]);
+
+    useEffect(() => {
+      const handleClickOutside = (event: MouseEvent) => {
+        if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+          setIsOpen(false);
+        }
+      };
+
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    useEffect(() => {
+      const currentTarget = observerTarget.current;
+      if (!currentTarget) return;
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          if (entries[0].isIntersecting && state.hasMore && !state.isLoading) {
+            loadMore();
+          }
+        },
+        { threshold: 0.1 },
+      );
+
+      observer.observe(currentTarget);
+
+      return () => {
+        if (currentTarget) observer.unobserve(currentTarget);
+      };
+    }, [state.hasMore, state.isLoading, loadMore, isOpen]);
+
+    const items = useMemo(() => getOrderedItems(state), [state]);
+
+    const handleSelect = (item: InferResult) => {
+      const isFinal = selectItem(item);
+
+      if (!isFinal) {
+        setTimeout(() => internalInputRef.current?.focus(), 0);
+      } else {
+        setIsOpen(false);
+      }
+    };
+
+    const handleClear = () => {
+      core.handleInput('');
+      internalInputRef.current?.focus();
+    };
+
+    const hasResults = items.length > 0;
+    const showNoResults =
+      !state.isLoading && !state.isError && state.query.length > 0 && !hasResults && !state.isValid;
+
+    const showDropdown = isOpen && (hasResults || state.isLoading || showNoResults);
+
+    const isInfiniteLoading = state.isLoading && items.length > 0;
+
+    return (
+      <div ref={wrapperRef} className={`pro6pp-wrapper ${className || ''}`} style={style}>
+        <div style={{ position: 'relative' }}>
+          <input
+            ref={internalInputRef}
+            type="text"
+            className="pro6pp-input"
+            placeholder={placeholder}
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="none"
+            spellCheck="false"
+            inputMode="search"
+            enterKeyHint="search"
+            {...inputProps}
+            {...coreInputProps}
+            onFocus={(e) => {
+              setIsOpen(true);
+              inputProps?.onFocus?.(e);
+            }}
+          />
+          <div className="pro6pp-input-addons">
+            {showClearButton && state.query.length > 0 && (
+              <button
+                type="button"
+                className="pro6pp-clear-button"
+                onClick={handleClear}
+                aria-label="Clear input"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {showDropdown && (
+          <div
+            className="pro6pp-dropdown"
+            onWheel={(e) => e.stopPropagation()}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <ul className="pro6pp-list" role="listbox">
+              {hasResults ? (
+                <>
+                  {items.map((item, index) => {
+                    const isActive = index === state.selectedSuggestionIndex;
+                    const isFuzzy = item.exact === false;
+                    const isPlace = item.type === 'place';
+                    const placeAddress = isPlace ? getPlaceAddress(item.subtitle) : '';
+                    const secondaryText = !isPlace
+                      ? item.subtitle || (item.count !== undefined ? item.count : '')
+                      : '';
+                    const showChevron = item.value === undefined || item.value === null;
+
+                    return (
+                      <li
+                        key={`${item.label}-${index}`}
+                        role="option"
+                        aria-selected={isActive}
+                        className={`pro6pp-item ${isPlace ? 'pro6pp-item--place' : ''} ${
+                          isActive ? 'pro6pp-item--active' : ''
+                        } ${isFuzzy ? 'pro6pp-item--fuzzy' : ''}`}
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleSelect(item)}
+                      >
+                        {renderItem ? (
+                          renderItem(item, isActive)
+                        ) : (
+                          <>
+                            <HighlightedText
+                              text={item.label}
+                              query={state.query}
+                              fuzzy={isFuzzy}
+                            />
+                            {isPlace && placeAddress ? (
+                              <span className="pro6pp-item__subtitle">, {placeAddress}</span>
+                            ) : secondaryText ? (
+                              <span className="pro6pp-item__subtitle">, {secondaryText}</span>
+                            ) : null}
+                            {showChevron && (
+                              <div className="pro6pp-item__chevron">
+                                <svg
+                                  width="16"
+                                  height="16"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="2"
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                >
+                                  <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </li>
+                    );
+                  })}
+
+                  {/* detects when we reach the bottom */}
+                  {state.hasMore && !state.isLoading && (
+                    <li key="sentinel" ref={observerTarget} style={{ height: '1px', opacity: 0 }} />
+                  )}
+
+                  {isInfiniteLoading && (
+                    <li key="loader" className="pro6pp-loader-item">
+                      <div className="pro6pp-mini-spinner" />
+                      <span>{loadingText}</span>
+                    </li>
+                  )}
+                </>
+              ) : state.isLoading ? (
+                <li className="pro6pp-no-results">Searching...</li>
+              ) : (
+                <li className="pro6pp-no-results">
+                  {renderNoResults ? renderNoResults(state) : noResultsText}
+                </li>
+              )}
+            </ul>
+          </div>
+        )}
+      </div>
+    );
+  },
+);
+
+export type {
+  CountryCode,
+  LanguageCode,
+  SortOrder,
+  Stage,
+  AddressValue,
+  AddressSuggestion,
+  PlaceValue,
+  PlaceSuggestion,
+  InferTypes,
+  InferResult,
+  InferState,
+  InferConfig,
+  Fetcher,
+  InferPlacesCountryCode,
+} from '@pro6pp/infer-core';
+
+export { INFER_PLACES_COUNTRIES, supportsInferPlaces } from '@pro6pp/infer-core';
