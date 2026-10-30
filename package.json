@@ -1,0 +1,32 @@
+{
+  "name": "infer-sdk-root",
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "dev": "npm run dev --workspaces",
+    "lint": "eslint .",
+    "format": "prettier --write \"./packages/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "format:check": "prettier --check \"./packages/**/*.{ts,tsx,js,jsx,json,md}\"",
+    "type-check": "npm run type-check --workspaces --if-present",
+    "changeset": "changeset",
+    "release": "changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^3.0.0",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^26.0.0",
+    "@vitest/coverage-v8": "^5.0.0",
+    "eslint": "^10.13.0",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "happy-dom": "^21.0.0",
+    "prettier": "^3.7.4",
+    "tsup": "^9.0.0",
+    "typescript": "^5.0.0",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.0"
+  }
+}
